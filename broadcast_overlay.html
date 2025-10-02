@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Broadcast Overlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ink: #ffffff;
+            --ink-muted: #a3a3a3;
+            --surface: #0a0a0a;
+            --border: #1a1a1a;
+            --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--ink);
+        }
+
+        /* Lower Third Ticker */
+        .ticker-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            transform: translateY(100%);
+            transition: transform 400ms var(--ease-out);
+            z-index: 10;
+        }
+
+        .ticker-container.active {
+            transform: translateY(0);
+        }
+
+        .ticker-track {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            position: relative;
+            mask-image: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+        }
+
+        .ticker-text {
+            white-space: nowrap;
+            animation: ticker-scroll 20s linear infinite;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        @keyframes ticker-scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Popup Alert */
+        .popup-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%);
+            backdrop-filter: blur(32px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 48px;
+            min-width: 400px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .popup-alert.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            transition: all 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .popup-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 24px;
+            background: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #000;
+        }
+
+        .popup-title {
+            font-size: 24px;
+            font-weight: 200;
+            letter-spacing: 0.15em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .popup-message {
+            font-size: 15px;
+            color: var(--ink-muted);
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        /* Be Right Back Screen */
+        .brb-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #141414 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 200;
+            transition: opacity 600ms var(--ease-out);
+        }
+
+        .brb-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .brb-content {
+            text-align: center;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 800ms var(--ease-out) 200ms;
+        }
+
+        .brb-screen.active .brb-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .brb-logo {
+            font-size: 72px;
+            font-weight: 200;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+            background: linear-gradient(135deg, #ffffff 0%, #737373 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brb-message {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .brb-subtitle {
+            font-size: 16px;
+            color: var(--ink-muted);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 48px;
+        }
+
+        .brb-timer {
+            font-size: 48px;
+            font-family: 'Courier New', monospace;
+            font-weight: 200;
+            color: var(--ink);
+            margin-top: 24px;
+        }
+
+        .brb-pulse {
+            width: 12px;
+            height: 12px;
+            background: var(--ink);
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,0.5); }
+            50% { opacity: 0.3; box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+        }
+
+        /* Countdown Timer */
+        .countdown-widget {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 20px 32px;
+            transform: translateX(120%);
+            transition: transform 400ms var(--ease-out);
+            z-index: 50;
+        }
+
+        .countdown-widget.active {
+            transform: translateX(0);
+        }
+
+        .countdown-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--ink-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .countdown-time {
+            font-size: 32px;
+            font-family: 'Courier New', monospace;
+            font-weight: 200;
+            color: var(--ink);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            display: flex;
+            gap: 16px;
+            transform: translateX(-120%);
+            transition: transform 400ms var(--ease-out);
+            z-index: 50;
+        }
+
+        .stats-bar.active {
+            transform: translateX(0);
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 16px 24px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-family: 'Courier New', monospace;
+            font-weight: 200;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--ink-muted);
+            font-weight: 600;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            bottom: 12px;
+            right: 12px;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--ink-muted);
+            background: rgba(0,0,0,0.5);
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 300;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #737373;
+        }
+
+        .status-dot.connected {
+            background: var(--ink);
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Lower Third Ticker -->
+    <div class="ticker-container" id="ticker">
+        <div class="ticker-track">
+            <div class="ticker-text" id="tickerText">Waiting for broadcast signal...</div>
+        </div>
+    </div>
+
+    <!-- Popup Alert -->
+    <div class="popup-alert" id="popup">
+        <div class="popup-icon" id="popupIcon" style="display: none;">✓</div>
+        <div class="popup-title" id="popupTitle">Alert</div>
+        <div class="popup-message" id="popupMessage">Message content here</div>
+    </div>
+
+    <!-- Be Right Back Screen -->
+    <div class="brb-screen" id="brb">
+        <div class="brb-content">
+            <div class="brb-logo">LIVE</div>
+            <div class="brb-message" id="brbMessage">Be Right Back</div>
+            <div class="brb-subtitle" id="brbSubtitle">Stream will resume shortly</div>
+            <div class="brb-pulse"></div>
+            <div class="brb-timer" id="brbTimer" style="display: none;">00:00</div>
+        </div>
+    </div>
+
+    <!-- Countdown Timer -->
+    <div class="countdown-widget" id="countdown">
+        <div class="countdown-label" id="countdownLabel">Starting In</div>
+        <div class="countdown-time" id="countdownTime">00:00</div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar" id="statsBar">
+        <!-- Dynamically populated -->
+    </div>
+
+    <!-- Connection Status -->
+    <div class="connection-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Connecting...</span>
+    </div>
+
+    <script>
+        const WS_URL = 'ws://localhost:8080';
+        let ws = null;
+        let reconnectTimeout = null;
+        let countdownInterval = null;
+
+        // WebSocket Connection
+        function connect() {
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                console.log('Connected to broadcast server');
+                document.getElementById('statusDot').classList.add('connected');
+                document.getElementById('statusText').textContent = 'Live';
+                
+                // Request current state
+                ws.send(JSON.stringify({ type: 'GET_STATE' }));
+            };
+
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                handleMessage(message);
+            };
+
+            ws.onclose = () => {
+                console.log('Disconnected from broadcast server');
+                document.getElementById('statusDot').classList.remove('connected');
+                document.getElementById('statusText').textContent = 'Reconnecting...';
+                
+                // Reconnect after 3 seconds
+                reconnectTimeout = setTimeout(connect, 3000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        function handleMessage(message) {
+            const { type, payload } = message;
+
+            switch (type) {
+                case 'STATE_SYNC':
+                    syncState(payload);
+                    break;
+                case 'TICKER_UPDATE':
+                    updateTicker(payload);
+                    break;
+                case 'POPUP_UPDATE':
+                case 'POPUP_TRIGGER':
+                    showPopup(payload);
+                    break;
+                case 'BRB_UPDATE':
+                    updateBRB(payload);
+                    break;
+                case 'COUNTDOWN_UPDATE':
+                    updateCountdown(payload);
+                    break;
+                case 'STATS_UPDATE':
+                    updateStats(payload);
+                    break;
+            }
+        }
+
+        function syncState(state) {
+            if (state.ticker.active) updateTicker(state.ticker);
+            if (state.brb.active) updateBRB(state.brb);
+            if (state.countdown.active) updateCountdown(state.countdown);
+            if (state.stats.active) updateStats(state.stats);
+        }
+
+        function updateTicker(data) {
+            const ticker = document.getElementById('ticker');
+            const text = document.getElementById('tickerText');
+            
+            text.textContent = data.message;
+            text.style.fontSize = data.fontSize + 'px';
+            text.style.fontWeight = data.fontWeight;
+            text.style.color = data.color;
+            text.style.animationDuration = data.speed + 's';
+            
+            if (data.active) {
+                ticker.classList.add('active');
+            } else {
+                ticker.classList.remove('active');
+            }
+        }
+
+        function showPopup(data) {
+            const popup = document.getElementById('popup');
+            const icon = document.getElementById('popupIcon');
+            const title = document.getElementById('popupTitle');
+            const message = document.getElementById('popupMessage');
+            
+            title.textContent = data.title || 'Alert';
+            message.textContent = data.message || '';
+            
+            if (data.icon) {
+                icon.textContent = data.icon;
+                icon.style.display = 'flex';
+            } else {
+                icon.style.display = 'none';
+            }
+            
+            popup.classList.add('active');
+            
+            if (data.duration && data.duration > 0) {
+                setTimeout(() => {
+                    popup.classList.remove('active');
+                }, data.duration);
+            }
+        }
+
+        function updateBRB(data) {
+            const brb = document.getElementById('brb');
+            const message = document.getElementById('brbMessage');
+            const subtitle = document.getElementById('brbSubtitle');
+            const timer = document.getElementById('brbTimer');
+            
+            message.textContent = data.message || 'Be Right Back';
+            subtitle.textContent = data.subtitle || 'Stream will resume shortly';
+            
+            if (data.estimatedTime) {
+                timer.style.display = 'block';
+                startBRBTimer(data.estimatedTime);
+            } else {
+                timer.style.display = 'none';
+            }
+            
+            if (data.active) {
+                brb.classList.add('active');
+            } else {
+                brb.classList.remove('active');
+            }
+        }
+
+        function startBRBTimer(endTime) {
+            const timer = document.getElementById('brbTimer');
+            
+            function updateTimer() {
+                const now = Date.now();
+                const diff = endTime - now;
+                
+                if (diff <= 0) {
+                    timer.textContent = '00:00';
+                    return;
+                }
+                
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                timer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        function updateCountdown(data) {
+            const countdown = document.getElementById('countdown');
+            const label = document.getElementById('countdownLabel');
+            const time = document.getElementById('countdownTime');
+            
+            label.textContent = data.label || 'Starting In';
+            
+            if (data.targetTime) {
+                if (countdownInterval) clearInterval(countdownInterval);
+                
+                countdownInterval = setInterval(() => {
+                    const now = Date.now();
+                    const diff = data.targetTime - now;
+                    
+                    if (diff <= 0) {
+                        time.textContent = '00:00';
+                        clearInterval(countdownInterval);
+                        return;
+                    }
+                    
+                    const minutes = Math.floor(diff / 60000);
+                    const seconds = Math.floor((diff % 60000) / 1000);
+                    time.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                }, 1000);
+            }
+            
+            if (data.active) {
+                countdown.classList.add('active');
+            } else {
+                countdown.classList.remove('active');
+            }
+        }
+
+        function updateStats(data) {
+            const statsBar = document.getElementById('statsBar');
+            
+            if (data.metrics && data.metrics.length > 0) {
+                statsBar.innerHTML = data.metrics.map(m => `
+                    <div class="stat-item">
+                        <div class="stat-value">${m.value}</div>
+                        <div class="stat-label">${m.label}</div>
+                    </div>
+                `).join('');
+            }
+            
+            if (data.active) {
+                statsBar.classList.add('active');
+            } else {
+                statsBar.classList.remove('active');
+            }
+        }
+
+        // Initialize
+        connect();
+
+        // Cleanup on unload
+        window.addEventListener('beforeunload', () => {
+            if (ws) ws.close();
+            if (reconnectTimeout) clearTimeout(reconnectTimeout);
+            if (countdownInterval) clearInterval(countdownInterval);
+        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 // components/List/AnimatedList.jsx
 import { useEffect, useRef } from 'react';
-import { gsap } from '../../lib/motionGuard';
+import { gsap } from '@/lib/motionGuard';
 
 export function AnimatedList({ items, staggerDelay = 0.04 }) {
   const listRef = useRef(null);

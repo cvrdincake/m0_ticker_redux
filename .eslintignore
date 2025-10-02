@@ -1,0 +1,7 @@
+dist/
+node_modules/
+*.json
+particlefield.js
+particletiers.js
+globalgsap.js
+charts.js

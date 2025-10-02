@@ -1,0 +1,46 @@
+/**
+ * Design System Tokens
+ * Aggregate import for all design tokens
+ * Import this once at your application root
+ */
+
+@import './colors.css';
+@import './typography.css';
+@import './spacing.css';
+@import './motion.css';
+
+/* ---- GLOBAL RESETS ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  color: var(--ink);
+  background-color: var(--surface);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* ---- FOCUS STYLES ---- */
+:focus-visible {
+  outline: 2px solid var(--ink-muted);
+  outline-offset: 2px;
+}
+
+/* ---- SELECTION STYLES ---- */
+::selection {
+  background-color: var(--ink-muted);
+  color: var(--surface);
+}

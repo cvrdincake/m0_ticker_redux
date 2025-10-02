@@ -1,4 +1,6 @@
 // patterns/BroadcastOverlay/PopupAlert.jsx
+import { useState, useEffect } from 'react';
+
 export function PopupAlert({ 
   title, 
   message, 

@@ -1,6 +1,6 @@
 // components/Chart/AnimatedPath.jsx
 import { useEffect, useRef } from 'react';
-import { gsap } from '../../lib/motionGuard';
+import { gsap } from '@/lib/motionGuard';
 
 export function AnimatedPath({ d, stroke = '#ffffff', strokeWidth = 2 }) {
   const pathRef = useRef(null);

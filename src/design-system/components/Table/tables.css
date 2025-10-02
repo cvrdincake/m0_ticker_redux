@@ -1,0 +1,38 @@
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table th {
+  font: var(--body-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-wide);
+  color: var(--ink-subtle);
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  font: var(--body-md);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--duration-fast);
+}
+
+/* Zebra (greyscale) */
+.table tbody tr:nth-child(even) {
+  background: rgba(255,255,255,0.01);
+}
+
+.table tbody tr:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+/* Dense variant */
+.table--dense td,
+.table--dense th {
+  padding: var(--space-2) var(--space-3);
+  font-size: 11px;
+}

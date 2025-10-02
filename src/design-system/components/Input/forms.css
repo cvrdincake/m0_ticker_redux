@@ -1,0 +1,31 @@
+.input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 11px 14px;
+  font: var(--body-md);
+  color: var(--ink);
+  transition: all 140ms var(--ease-out);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-strong);
+  background: var(--surface-lift);
+  box-shadow: var(--glow-sm);
+}
+
+.input:invalid {
+  border-color: var(--ink-muted); /* Still greyscale; no red */
+}
+
+.input-hint {
+  font: var(--body-xs);
+  color: var(--ink-subtle);
+  margin-top: var(--space-1);
+}
+
+.input-error {
+  font: var(--body-xs);
+  color: var(--ink-muted); /* Non-alarming grey */
+  margin-top: var(--space-1);
+}

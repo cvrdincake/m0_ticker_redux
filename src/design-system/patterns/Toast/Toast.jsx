@@ -1,6 +1,6 @@
 // patterns/Toast/ToastManager.jsx
 import { createContext, useContext, useState, useCallback } from 'react';
-import { gsap } from '../../lib/motionGuard';
+import { gsap } from '@/lib/motionGuard';
 
 const ToastContext = createContext();
 

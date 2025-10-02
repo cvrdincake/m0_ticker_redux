@@ -1,0 +1,10 @@
+/* tokens.css */
+:root {
+  --ink: #ffffff;
+  --surface: #0a0a0a;
+  --border: #1a1a1a;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-base: 200ms;
+  --space-4: 16px;
+  --body-md: 13px / 1.6;
+}

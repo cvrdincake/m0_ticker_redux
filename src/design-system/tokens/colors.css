@@ -1,0 +1,26 @@
+:root {
+  /* ---- MONOCHROME PALETTE ---- */
+  --ink:             #ffffff;      /* Pure white text/icons */
+  --ink-muted:       #a3a3a3;      /* Secondary text (65% opacity) */
+  --ink-subtle:      #737373;      /* Tertiary/disabled (45% opacity) */
+  
+  --surface:         #0a0a0a;      /* Primary background */
+  --surface-strong:  #000000;      /* Deepest black (modals/overlays) */
+  --surface-lift:    #1a1a1a;      /* Elevated cards/inputs */
+  
+  --border:          #1a1a1a;      /* Default border */
+  --border-strong:   #242424;      /* Hover/focus border */
+  --divider:         #2e2e2e;      /* Horizontal rules */
+  
+  /* ---- SEMANTIC TRANSPARENCY ---- */
+  --halo:            rgba(255,255,255,0.04); /* Glow inner */
+  --shadow:          rgba(0,0,0,0.3);        /* Elevation shadow */
+  --overlay:         rgba(0,0,0,0.8);        /* Modal backdrop */
+  
+  /* ---- STATE COLOURS ---- */
+  --accent:          #ffffff;      /* Primary accent (white) */
+  --accent-muted:    #737373;      /* Muted accent */
+  --danger:          #ff4444;      /* Error/destructive */
+  --warning:         #ffaa00;      /* Warning states */
+  --success:         #44ff44;      /* Success states */
+}
