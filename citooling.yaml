@@ -1,0 +1,9 @@
+# .github/workflows/quality.yml
+- name: Lighthouse CI
+  run: lhci autorun --budget-path=.lighthouserc.json
+
+- name: Axe Accessibility
+  run: npm run test:a11y  # Uses @axe-core/cli
+
+- name: Visual Regression
+  run: npx playwright test --project=chromium
