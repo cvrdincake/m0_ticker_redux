@@ -1,13 +1,9 @@
 /* =============================================
    M0 TICKER REDUX - Design Tokens
-   Import Order: Critical base styles first
+   Complete token system with monochrome palette
    ============================================= */
 
-@import './colors.css';
-@import './typography.css';
-@import './spacing.css';
-@import './effects.css';
-@import './motion.css';
+@import './core.css';
 
 /* Global Reset & Base */
 *,

@@ -14,7 +14,8 @@ export default defineConfig({
       '@/hooks': resolve(__dirname, './src/hooks'),
       '@/lib': resolve(__dirname, './src/lib'),
       '@/store': resolve(__dirname, './src/store'),
-      '@/pages': resolve(__dirname, './src/pages')
+      '@/pages': resolve(__dirname, './src/pages'),
+      '@/widgets': resolve(__dirname, './src/widgets')
     }
   },
   css: {

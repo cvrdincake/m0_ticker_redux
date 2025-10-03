@@ -1,4 +1,4 @@
-{
+export const particles = {
   "tiers": [
     {
       "id": "small",
@@ -11,26 +11,24 @@
     },
     {
       "id": "medium",
-      "count": 80,
-      "size": 6,
+      "count": 50,
+      "size": 4,
       "color": "var(--surface)",
       "alphaMax": 0.25,
       "fill": true,
-      "blur": 3,
       "composite": "screen"
     },
     {
       "id": "large",
-      "count": 8,
-      "size": 20,
+      "count": 15,
+      "size": 8,
       "color": "var(--surface)",
-      "alphaMax": 0.15,
+      "alphaMax": 0.1,
       "fill": true,
-      "blur": 10,
-      "composite": "screen"
+      "composite": "overlay"
     }
   ],
   "globalOpacity": 0.4,
   "speedRange": [1, 5],
   "driftDistance": "2× size"
-}
+};

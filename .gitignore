@@ -1,1 +1,6 @@
 node_modules
+dist
+coverage
+storybook-static
+.env.local
+.DS_Store

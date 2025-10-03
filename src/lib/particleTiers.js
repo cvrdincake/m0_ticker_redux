@@ -1,5 +1,4 @@
-```json
-{
+export const particleTiers = {
   "tiers": [
     {
       "id": "small",
@@ -8,32 +7,35 @@
       "color": "var(--surface)",
       "alphaMax": 0.3,
       "fill": false,
-      "speedRange": [1, 3],
-      "driftDistance": 4
+      "stroke": true,
+      "strokeWeight": 1,
+      "blur": 0.5,
+      "blend": "difference"
     },
     {
-      "id": "medium",
-      "count": 80,
-      "size": 6,
+      "id": "medium", 
+      "count": 50,
+      "size": 4,
       "color": "var(--surface)",
       "alphaMax": 0.25,
       "fill": true,
-      "blur": 3,
-      "speedRange": [1, 4],
-      "driftDistance": 12
+      "stroke": false,
+      "blur": 1,
+      "blend": "screen"
     },
     {
       "id": "large",
-      "count": 8,
-      "size": 20,
+      "count": 15,
+      "size": 8,
       "color": "var(--surface)",
-      "alphaMax": 0.15,
+      "alphaMax": 0.1,
       "fill": true,
-      "blur": 10,
-      "speedRange": [2, 5],
-      "driftDistance": 40
+      "stroke": false,
+      "blur": 2,
+      "blend": "overlay"
     }
   ],
   "globalOpacity": 0.4,
-  "canvasComposite": "lighter"
-}
+  "speedRange": [1, 5],
+  "driftDistance": "2× size"
+};

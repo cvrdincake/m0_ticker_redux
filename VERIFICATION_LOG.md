@@ -13,7 +13,7 @@
 - **Integration**: Real-time dashboard store updates, localStorage persistence
 
 ### 2. Store Extensions ✅ COMPLETE  
-- **Location**: `src/store/dashboard.js` (extended)
+- **Location**: `src/store/useDashboard.js` (extended)
 - **Operations**: nudge, resize, align, z-order management
 - **Persistence**: localStorage integration with state recovery
 

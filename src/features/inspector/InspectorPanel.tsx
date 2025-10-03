@@ -1,4 +1,4 @@
-import { useDashboardStore } from '@/store/useDashboard';
+import { useDashboard } from '@/store/useDashboard';
 import { Button, Input, Text } from '@/design-system';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useState, useEffect } from 'react';

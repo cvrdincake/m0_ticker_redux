@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useDashboardStore } from '@/store/useDashboard';
+import { useDashboard } from '@/store/useDashboard';
 import { AlignmentGuides, snapToGuides, nearestGuides } from './AlignmentGuides';
 import { cn } from '@/lib/utils';
 import styles from './DashboardGrid.module.css';

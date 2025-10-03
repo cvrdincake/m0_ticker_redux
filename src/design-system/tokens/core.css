@@ -1,0 +1,192 @@
+/**
+ * Design Tokens - Core CSS Custom Properties
+ * Monochrome broadcast-safe design system
+ */
+
+:root {
+  /* Colour Palette */
+  --ink: hsl(0, 0%, 10%);
+  --surface: hsl(0, 0%, 98%);
+  --border: hsl(0, 0%, 85%);
+  --muted: hsl(0, 0%, 60%);
+  --accent: hsl(0, 0%, 30%);
+  --focus: hsl(210, 100%, 50%);
+  --success: hsl(120, 20%, 40%);
+  --warning: hsl(45, 80%, 50%);
+  --error: hsl(0, 80%, 50%);
+  
+  /* High Contrast Mode */
+  --hc-ink: hsl(0, 0%, 0%);
+  --hc-surface: hsl(0, 0%, 100%);
+  --hc-border: hsl(0, 0%, 50%);
+  --hc-muted: hsl(0, 0%, 40%);
+  --hc-accent: hsl(0, 0%, 20%);
+  --hc-focus: hsl(210, 100%, 40%);
+  --hc-success: hsl(120, 100%, 30%);
+  --hc-warning: hsl(45, 100%, 40%);
+  --hc-error: hsl(0, 100%, 40%);
+
+  /* Spacing Scale */
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  --space-3xl: 4rem;     /* 64px */
+  --space-4xl: 6rem;     /* 96px */
+
+  /* Typography Scale */
+  --font-family-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.875rem;  /* 14px */
+  --font-size-md: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem;  /* 36px */
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Motion & Timing */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+  
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* Borders & Radii */
+  --border-width-thin: 1px;
+  --border-width-medium: 2px;
+  --border-width-thick: 4px;
+  
+  --radius-none: 0;
+  --radius-sm: 0.125rem;  /* 2px */
+  --radius-md: 0.25rem;   /* 4px */
+  --radius-lg: 0.5rem;    /* 8px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Focus Ring */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-style: solid;
+  
+  /* Z-Index Scale */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-overlay: 100;
+  --z-modal: 1000;
+  --z-toast: 9000;
+  --z-tooltip: 9999;
+  
+  /* Grid & Layout */
+  --grid-gap: var(--space-md);
+  --container-max-width: 1200px;
+  --sidebar-width: 280px;
+  --header-height: 60px;
+  
+  /* Widget Specific */
+  --widget-min-width: 200px;
+  --widget-min-height: 120px;
+  --widget-handle-size: 12px;
+  --snap-tolerance: 6px;
+  
+  /* Noise & Effects */
+  --noise-opacity: 0.03;
+  --noise-scale: 1;
+  --noise-animation-duration: 8s;
+  
+  /* Particle System */
+  --particle-small-count: 250;
+  --particle-medium-count: 50;
+  --particle-large-count: 15;
+  --particle-global-opacity: 0.4;
+  --particle-speed-min: 1;
+  --particle-speed-max: 5;
+  
+  /* Overlay Specific */
+  --overlay-bg: linear-gradient(135deg, 
+    rgba(0, 0, 0, 0.9) 0%, 
+    rgba(20, 20, 20, 0.85) 50%, 
+    rgba(0, 0, 0, 0.9) 100%);
+  --overlay-blur: 8px;
+  
+  /* Lower Third */
+  --lower-third-height: 120px;
+  --lower-third-speed: 50px;
+  --ticker-speed: 60px;
+}
+
+/* High Contrast Mode Override */
+html.hc {
+  --ink: var(--hc-ink);
+  --surface: var(--hc-surface);
+  --border: var(--hc-border);
+  --muted: var(--hc-muted);
+  --accent: var(--hc-accent);
+  --focus: var(--hc-focus);
+  --success: var(--hc-success);
+  --warning: var(--hc-warning);
+  --error: var(--hc-error);
+  
+  /* Enhanced contrast for accessibility */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  
+  --border-width-medium: 3px;
+  --focus-ring-width: 3px;
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+    --noise-animation-duration: 0ms;
+  }
+}
+
+/* Focus Ring Utility */
+.focus-ring {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

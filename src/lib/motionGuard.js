@@ -5,6 +5,9 @@
 
 import { gsap as _gsap } from 'gsap';
 
+// Debug flag for production builds
+const DEBUG_MOTION = import.meta.env?.VITE_DEBUG_MOTION === 'true';
+
 // Export GSAP instance
 export const gsap = _gsap;
 
@@ -28,7 +31,7 @@ export function setContext(next = 'dashboard') {
   
   // Apply context-specific timeline speeds
   gsap.globalTimeline.timeScale(context === 'dashboard' ? 1.5 : 1.0);
-  console.log(`[MotionGuard] Context set to: ${context}`);
+  DEBUG_MOTION && DEBUG_MOTION && console.log(`[MotionGuard] Context set to: ${context}`);
 }
 
 /**
@@ -43,12 +46,12 @@ export function applyReducedMotion(reduced) {
   if (reduced) {
     gsap.globalTimeline.pause(0, true);
     gsap.ticker.sleep();
-    console.log('[MotionGuard] Reduced motion enabled - animations paused');
+    DEBUG_MOTION && console.log('[MotionGuard] Reduced motion enabled - animations paused');
   } else {
     gsap.ticker.wake();
     gsap.globalTimeline.play();
     setContext(context);
-    console.log('[MotionGuard] Reduced motion disabled - animations resumed');
+    DEBUG_MOTION && console.log('[MotionGuard] Reduced motion disabled - animations resumed');
   }
 }
 
@@ -80,11 +83,11 @@ export function initMotion({ context: ctx = 'dashboard' } = {}) {
     if (document.hidden) {
       gsap.ticker.sleep();
       gsap.globalTimeline.pause();
-      console.log('[MotionGuard] Page hidden - ticker sleeping, timeline paused');
+      DEBUG_MOTION && console.log('[MotionGuard] Page hidden - ticker sleeping, timeline paused');
     } else {
       gsap.ticker.wake();
       gsap.globalTimeline.play();
-      console.log('[MotionGuard] Page visible - ticker awake, timeline resumed');
+      DEBUG_MOTION && console.log('[MotionGuard] Page visible - ticker awake, timeline resumed');
     }
   };
   
@@ -106,7 +109,7 @@ export function initMotion({ context: ctx = 'dashboard' } = {}) {
   window.addEventListener('beforeunload', beforeUnloadHandler);
   
   isInitialized = true;
-  console.log(`[MotionGuard] Initialized with context: ${context}`);
+  DEBUG_MOTION && console.log(`[MotionGuard] Initialized with context: ${context}`);
   
   // Return disposal function
   return {
@@ -126,7 +129,7 @@ export function initMotion({ context: ctx = 'dashboard' } = {}) {
         beforeUnloadHandler = null;
       }
       
-      console.log('[MotionGuard] Disposed');
+      DEBUG_MOTION && console.log('[MotionGuard] Disposed');
     }
   };
 }
@@ -157,7 +160,7 @@ function cleanup() {
   }
   
   isInitialized = false;
-  console.log('[MotionGuard] Cleaned up');
+  DEBUG_MOTION && console.log('[MotionGuard] Cleaned up');
 }
 
 /**
