@@ -1,6 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { cn } from '@/utils/cn';
+import { cn } from '@/lib/utils';
 import styles from './Chart.module.css';
 
 const CHART_THEME = {

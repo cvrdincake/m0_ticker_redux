@@ -55,15 +55,15 @@
 }
 
 .success {
-  border-left: 4px solid #10b981;
+  border-left: 4px solid var(--success);
 }
 
 .warning {
-  border-left: 4px solid #f59e0b;
+  border-left: 4px solid var(--warning);
 }
 
 .error {
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid var(--danger);
 }
 
 /* Layout */

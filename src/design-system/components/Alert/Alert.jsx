@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Text } from '@/design-system/primitives';
-import { Portal } from '@/components/Portal';
-import { cn } from '@/utils/cn';
+import { Portal } from '@/design-system/components/Portal';
+import { cn } from '@/lib/utils';
 import styles from './Alert.module.css';
 
 const Alert = ({ 

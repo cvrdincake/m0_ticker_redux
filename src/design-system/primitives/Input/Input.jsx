@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { cn } from '@/utils/cn';
+import { cn } from '@/lib/utils';
 import styles from './Input.module.css';
 
 const Input = forwardRef(({ 

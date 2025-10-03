@@ -1,0 +1,62 @@
+/* Widget Toolbar Styles */
+.toolbar {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background-color: var(--surface-strong);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-base);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all var(--duration-fast) var(--ease-out);
+  pointer-events: none;
+}
+
+.toolbar.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background-color: var(--border);
+  margin: 0 var(--space-2);
+}
+
+/* Show toolbar on widget hover/focus */
+.widget:hover .toolbar,
+.widget:focus-within .toolbar {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* High contrast mode */
+html.hc .toolbar {
+  background-color: var(--surface);
+  border-color: var(--ink);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .toolbar {
+    transition: none;
+    transform: none;
+  }
+}

@@ -1,0 +1,165 @@
+/* Dashboard Grid Styles */
+.grid {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--surface);
+  overflow: hidden;
+  user-select: none;
+}
+
+.gridBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+  background-image: 
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.widget {
+  position: absolute;
+  background-color: var(--surface-lift);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-base);
+  cursor: move;
+  transition: all var(--duration-fast) var(--ease-out);
+  
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-color: var(--border-strong);
+  }
+  
+  &:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+.widget.selected {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+.widget.dragging {
+  box-shadow: var(--shadow-2xl);
+  transform: rotate(1deg);
+  opacity: 0.9;
+}
+
+.widgetContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3);
+}
+
+.widgetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.widgetTitle {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.widgetType {
+  font-size: var(--text-xs);
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.widgetBody {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.placeholder {
+  color: var(--ink-muted);
+  text-align: center;
+  font-size: var(--text-sm);
+  padding: var(--space-4);
+}
+
+.resizeHandle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: se-resize;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background-image: 
+      linear-gradient(45deg, transparent 2px, var(--border-strong) 2px, var(--border-strong) 4px, transparent 4px),
+      linear-gradient(-45deg, transparent 2px, var(--border-strong) 2px, var(--border-strong) 4px, transparent 4px);
+    background-size: 6px 6px;
+    background-position: 0 0, 3px 3px;
+  }
+}
+
+/* Screen reader only class */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast mode */
+html.hc .widget {
+  border-color: var(--ink);
+  background-color: var(--surface);
+}
+
+html.hc .widget.selected {
+  background-color: var(--surface-lift);
+  outline: 2px solid var(--ink);
+}
+
+html.hc .resizeHandle::after {
+  background-image: 
+    linear-gradient(45deg, transparent 2px, var(--ink) 2px, var(--ink) 4px, transparent 4px),
+    linear-gradient(-45deg, transparent 2px, var(--ink) 2px, var(--ink) 4px, transparent 4px);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .widget {
+    transition: none;
+  }
+  
+  .widget.dragging {
+    transform: none;
+  }
+}

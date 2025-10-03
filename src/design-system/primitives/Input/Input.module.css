@@ -49,10 +49,10 @@
 
 /* States */
 .error {
-  border-color: #ef4444;
+  border-color: var(--danger);
   
   &:focus {
-    border-color: #ef4444;
+    border-color: var(--danger);
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
   }
 }

@@ -36,8 +36,27 @@ body {
 
 /* Focus Management */
 :focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-color: var(--border-strong);
+}
+
+/* Global focus ring for all interactive elements */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-color: var(--border-strong);
+}
+
+/* High contrast mode focus */
+html.hc *:focus-visible {
+  outline: var(--focus-ring-width) solid var(--ink);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: none;
 }
 
 /* Reduced Motion Support */
@@ -50,6 +69,33 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* High Contrast Mode */
+html.hc {
+  /* Override base colors for high contrast */
+  --ink: #ffffff;
+  --ink-soft: #f0f0f0;
+  --ink-muted: #e0e0e0;
+  --ink-subtle: #d0d0d0;
+  
+  --surface: #000000;
+  --surface-lift: #1a1a1a;
+  --surface-strong: #2a2a2a;
+  
+  --border: #ffffff;
+  --border-strong: #ffffff;
+  --divider: #ffffff;
+  
+  --success: #00ff00;
+  --warning: #ffff00;
+  --danger: #ff0000;
+  --info: #00ffff;
+  
+  --halo: #ffffff;
+  
+  /* Ensure sufficient contrast */
+  filter: contrast(1.2);
 }
 
 /* High Contrast Support */

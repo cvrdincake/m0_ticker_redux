@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './status.css';
+import '@/styles/status.css';
 
 export default function StatusPage() {
   const [env, setEnv] = useState({ url: '', status: 'loading' });

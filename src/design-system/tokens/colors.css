@@ -3,12 +3,27 @@
   --ink:             #ffffff;      /* Pure white text/icons */
   --ink-muted:       #a3a3a3;      /* Secondary text */
   --ink-subtle:      #737373;      /* Tertiary/disabled */
-  --surface:         #0a0a0a;      /* Primary background */
-  --surface-strong:  #000000;      /* Deepest black (modals/overlays) */
+  --surface:         #ffffff;      /* Pure white for strokes */
+  --surface-strong:  #0a0a0a;      /* Primary background */
+  --surface-deep:    #000000;      /* Deepest black (modals/overlays) */
+  --surface-darker:  #0a0a0a;      /* Darker background */
+  --surface-dark:    #141414;      /* Dark background */
   --surface-lift:    #1a1a1a;      /* Elevated cards/inputs */
-  --border:          #1a1a1a;      /* Default border */
-  --border-strong:   #242424;      /* Hover/focus border */
+  --border:          #2e2e2e;      /* Default border */
+  --border-strong:   #404040;      /* Hover/focus border */
+  --border-subtle:   #1a1a1a;      /* Subtle border */
   --divider:         #2e2e2e;      /* Horizontal rules */
   --halo:            rgba(255,255,255,0.04); /* Glow inner */
   --shadow:          rgba(0,0,0,0.3);        /* Elevation shadow */
+  --shadow-lg:       0 4px 16px rgba(0,0,0,0.4); /* Large shadow */
+  
+  /* Alpha variants */
+  --surface-alpha-10: rgba(255,255,255,0.1);
+  --ink-alpha-08:     rgba(163,163,163,0.08);
+  
+  /* Semantic colours */
+  --success:         #10b981;      /* Success state */
+  --warning:         #f59e0b;      /* Warning state */
+  --danger:          #ef4444;      /* Error/danger state */
+  --info:            #3b82f6;      /* Information state */
 }

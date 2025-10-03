@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { WebSocketClient } from '@/utils/WebSocketClient';
+import { WebSocketClient } from '@/lib/websocket';
 
 /**
  * React hook for WebSocket connection with automatic reconnection

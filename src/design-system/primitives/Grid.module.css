@@ -1,0 +1,13 @@
+._grid_ghi789 {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), 1fr);
+}
+
+._gap-sm_ghi789 { gap: var(--space-2); }
+._gap-md_ghi789 { gap: var(--space-4); }
+._gap-lg_ghi789 { gap: var(--space-6); }
+
+._columns-1_ghi789 { grid-template-columns: 1fr; }
+._columns-2_ghi789 { grid-template-columns: repeat(2, 1fr); }
+._columns-3_ghi789 { grid-template-columns: repeat(3, 1fr); }
+._columns-4_ghi789 { grid-template-columns: repeat(4, 1fr); }

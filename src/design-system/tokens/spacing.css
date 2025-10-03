@@ -18,3 +18,42 @@
   --space-20:   80px;  /* 5rem */
   --space-24:   96px;  /* 6rem */
 }
+
+/* Size Scale for fixed dimensions */
+:root {
+  --size-0:    0;
+  --size-px:   1px;
+  --size-1:    4px;
+  --size-2:    8px;
+  --size-3:    12px;
+  --size-4:    16px;
+  --size-5:    20px;
+  --size-6:    24px;
+  --size-8:    32px;
+  --size-10:   40px;
+  --size-12:   48px;
+  --size-16:   64px;
+  --size-20:   80px;
+  --size-24:   96px;
+  --size-32:   128px;
+  --size-40:   160px;
+  --size-48:   192px;
+  --size-56:   224px;
+  --size-64:   256px;
+  --size-72:   288px;
+  --size-80:   320px;
+  --size-96:   384px;
+  
+  /* Named sizes */
+  --size-xs:   320px;  /* 20rem */
+  --size-sm:   384px;  /* 24rem */
+  --size-md:   448px;  /* 28rem */
+  --size-lg:   512px;  /* 32rem */
+  --size-xl:   576px;  /* 36rem */
+  --size-2xl:  672px;  /* 42rem */
+  --size-3xl:  768px;  /* 48rem */
+  --size-4xl:  896px;  /* 56rem */
+  --size-5xl:  1024px; /* 64rem */
+  --size-6xl:  1152px; /* 72rem */
+  --size-7xl:  1280px; /* 80rem */
+}
