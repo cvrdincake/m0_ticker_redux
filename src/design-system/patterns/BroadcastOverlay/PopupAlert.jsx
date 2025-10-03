@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { getGSAP, shouldUseMotion } from '@/lib/motionGuard';
 import styles from './PopupAlert.module.css';
 
 /**
@@ -23,6 +24,7 @@ export const PopupAlert = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const alertRef = useRef(null);
   const timeoutRef = useRef(null);
   const isPausedRef = useRef(false);
   const remainingTimeRef = useRef(duration);
@@ -38,16 +40,40 @@ export const PopupAlert = ({
 
   // Handle dismiss with exit animation
   const handleDismiss = useCallback(() => {
+    if (!isVisible) return;
+    
     setIsAnimating(false);
-    // Allow exit animation to complete before hiding
+    
+    if (shouldUseMotion()) {
+      const gsap = getGSAP();
+      if (gsap && alertRef.current) {
+        gsap.to(alertRef.current, {
+          opacity: 0,
+          scale: 0.9,
+          x: 100,
+          duration: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--duration-base')) || 0.24,
+          ease: getComputedStyle(document.documentElement).getPropertyValue('--ease-out') || 'power2.out',
+          onComplete: () => {
+            setIsVisible(false);
+            clearTimeout();
+            isPausedRef.current = false;
+            remainingTimeRef.current = duration;
+            onDismiss?.();
+          },
+        });
+        return;
+      }
+    }
+    
+    // Fallback for reduced motion
     setTimeout(() => {
       setIsVisible(false);
       clearTimeout();
       isPausedRef.current = false;
       remainingTimeRef.current = duration;
       onDismiss?.();
-    }, 240); // Match --duration-base
-  }, [clearTimeout, duration, onDismiss]);
+    }, 100);
+  }, [clearTimeout, duration, onDismiss, isVisible]);
 
   // Start auto-dismiss timeout
   const startTimeout = useCallback(() => {
@@ -85,7 +111,30 @@ export const PopupAlert = ({
       setIsVisible(true);
       setIsAnimating(true);
       remainingTimeRef.current = duration;
-      startTimeout();
+      
+      // Entry animation with GSAP
+      if (shouldUseMotion() && alertRef.current) {
+        const gsap = getGSAP();
+        if (gsap) {
+          gsap.fromTo(alertRef.current,
+            { opacity: 0, scale: 0.9, x: 100 },
+            { 
+              opacity: 1, 
+              scale: 1, 
+              x: 0,
+              duration: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--duration-base')) || 0.24,
+              ease: getComputedStyle(document.documentElement).getPropertyValue('--ease-out') || 'power2.out',
+              onComplete: () => {
+                startTimeout();
+              }
+            }
+          );
+        } else {
+          startTimeout();
+        }
+      } else {
+        startTimeout();
+      }
     } else {
       handleDismiss();
     }
@@ -112,6 +161,7 @@ export const PopupAlert = ({
 
   const alertContent = (
     <div
+      ref={alertRef}
       className={`
         ${styles.popupAlert}
         ${isAnimating ? styles.popupAlertEntering : styles.popupAlertExiting}

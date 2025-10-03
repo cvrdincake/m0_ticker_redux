@@ -1,12 +1,9 @@
 /* Card component styles */
 .card {
-  background: linear-gradient(135deg, 
-    rgba(255,255,255,0.03) 0%, 
-    rgba(255,255,255,0.01) 100%
-  );
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: var(--spacing-lg);
+  padding: var(--space-5);
   transition: all var(--duration-base) var(--ease-out);
   position: relative;
   overflow: hidden;
@@ -27,10 +24,7 @@
 
 .card--interactive:hover {
   border-color: var(--border-strong);
-  background: linear-gradient(135deg, 
-    rgba(255,255,255,0.05) 0%, 
-    rgba(255,255,255,0.02) 100%
-  );
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -70,14 +64,14 @@
   height: 20px;
   background: var(--surface-lift);
   border-radius: var(--radius-sm);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--space-4);
   width: 40%;
 }
 
 .skeletonContent {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--space-2);
 }
 
 .skeletonLine {
@@ -93,7 +87,7 @@
 
 /* Sub-components */
 .cardHeader {
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--space-5);
 }
 
 .cardContent {
@@ -101,9 +95,27 @@
 }
 
 .cardFooter {
-  margin-top: var(--spacing-lg);
+  margin-top: var(--space-5);
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--spacing-md);
+  gap: var(--space-4);
+}
+
+/* Reduced motion styles */
+@media (prefers-reduced-motion: reduce) {
+  .card--interactive:hover::before {
+    transition: none;
+  }
+  
+  .card--interactive:hover {
+    border: 2px solid var(--border-strong);
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .skeleton {
+    animation: none;
+    opacity: 0.5;
+  }
 }

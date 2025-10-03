@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
-import { useReducedMotion } from '@/hooks';
+import { useFocusTrap } from '@/hooks';
 import styles from './Modal.module.css';
 
 /**
@@ -24,63 +24,10 @@ const Modal = forwardRef(({
   ...props
 }, ref) => {
   const modalRef = useRef(null);
-  const previousActiveElement = useRef(null);
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Focus management
-  useEffect(() => {
-    if (!isOpen) return;
-
-    // Store previously focused element
-    previousActiveElement.current = document.activeElement;
-
-    // Focus management after modal opens
-    const focusModal = () => {
-      const modal = modalRef.current;
-      if (!modal) return;
-
-      if (initialFocus) {
-        const element = typeof initialFocus === 'string' 
-          ? modal.querySelector(initialFocus)
-          : initialFocus.current;
-        if (element) {
-          element.focus();
-          return;
-        }
-      }
-
-      // Focus first interactive element in body or modal itself
-      const bodyElement = modal.querySelector(`.${styles.body}`);
-      const focusableElements = bodyElement ? bodyElement.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      ) : [];
-      
-      if (focusableElements.length > 0) {
-        focusableElements[0].focus();
-      } else {
-        // Fallback to all focusable elements if no body elements
-        const allFocusable = modal.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (allFocusable.length > 0) {
-          allFocusable[0].focus();
-        } else {
-          modal.focus();
-        }
-      }
-    };
-
-    // Delay focus to ensure modal is rendered
-    const timeoutId = setTimeout(focusModal, 100);
-
-    return () => {
-      clearTimeout(timeoutId);
-      // Restore focus when modal closes
-      if (previousActiveElement.current) {
-        previousActiveElement.current.focus();
-      }
-    };
-  }, [isOpen, initialFocus]);
+  // Focus trap implementation
+  const focusTrap = useFocusTrap(modalRef, isOpen);
 
   // Keyboard event handling
   useEffect(() => {
@@ -91,46 +38,18 @@ const Modal = forwardRef(({
         event.preventDefault();
         onClose?.();
       }
-
-      // Tab trapping
-      if (event.key === 'Tab') {
-        const modal = modalRef.current;
-        if (!modal) return;
-
-        const focusableElements = Array.from(modal.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        ));
-
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey) {
-          if (document.activeElement === firstElement) {
-            event.preventDefault();
-            lastElement.focus();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            event.preventDefault();
-            firstElement.focus();
-          }
-        }
-      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, closeOnEscape, onClose]);
 
-  // Prevent body scroll when modal is open
+  // Body scroll lock
   useEffect(() => {
     if (isOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
       return () => {
-        document.body.style.overflow = originalOverflow;
+        document.body.classList.remove('modal-open');
       };
     }
   }, [isOpen]);
@@ -153,6 +72,7 @@ const Modal = forwardRef(({
 
   const overlayClasses = [
     styles.overlay,
+    prefersReducedMotion && styles.reducedMotion,
     overlayClassName
   ].filter(Boolean).join(' ');
 

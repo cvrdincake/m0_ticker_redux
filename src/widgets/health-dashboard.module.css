@@ -1,0 +1,268 @@
+/* Health Dashboard Styles */
+.healthDashboard {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.header h3 {
+  margin: 0;
+  color: var(--ink-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.actionButton {
+  padding: 8px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--surface-primary);
+  color: var(--ink-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  background: var(--surface-secondary);
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.summary {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--surface-tertiary);
+  border-radius: 8px;
+}
+
+.summaryItem {
+  text-align: center;
+  flex: 1;
+}
+
+.summaryValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin-bottom: 4px;
+}
+
+.summaryLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-secondary);
+  font-weight: 500;
+}
+
+.widgetList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.healthIndicator {
+  padding: 16px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 8px;
+  background: var(--surface-primary);
+  transition: all 0.2s ease;
+}
+
+.healthIndicator:hover {
+  border-color: var(--border-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.statusIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.widgetInfo {
+  flex: 1;
+}
+
+.widgetId {
+  font-weight: 600;
+  color: var(--ink-primary);
+  font-size: 14px;
+}
+
+.widgetKind {
+  font-size: 12px;
+  color: var(--ink-secondary);
+  text-transform: capitalize;
+}
+
+.statusText {
+  font-weight: 500;
+  font-size: 14px;
+  text-transform: capitalize;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--surface-secondary);
+  color: var(--ink-secondary);
+}
+
+.metricsRow {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metricLabel {
+  font-size: 11px;
+  color: var(--ink-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metricValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
+.errorRow {
+  margin-bottom: 12px;
+  padding: 8px;
+  background: var(--surface-error);
+  border-radius: 4px;
+  border-left: 3px solid var(--border-error);
+}
+
+.errorLabel {
+  font-size: 11px;
+  color: var(--ink-error);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.errorMessage {
+  font-size: 12px;
+  color: var(--ink-error);
+  font-family: monospace;
+  word-break: break-word;
+}
+
+.actionRow {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.recoverButton {
+  padding: 6px 12px;
+  border: 1px solid var(--border-info);
+  border-radius: 4px;
+  background: var(--surface-info);
+  color: var(--ink-info);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.recoverButton:hover:not(:disabled) {
+  background: var(--ink-info);
+  color: var(--surface-info);
+}
+
+.recoverButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resetButton {
+  padding: 6px 12px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 4px;
+  background: var(--surface-secondary);
+  color: var(--ink-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetButton:hover {
+  background: var(--surface-tertiary);
+  border-color: var(--border-primary);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--ink-secondary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .summary {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  .metricsRow {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .actionRow {
+    justify-content: stretch;
+  }
+  
+  .actionRow button {
+    flex: 1;
+  }
+  
+  .statusRow {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,233 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* Dashboard Controls */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--surface-lift);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.controlsSection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Grid Container */
+.gridContainer {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.grid,
+.simpleGrid {
+  height: 100%;
+  min-height: 100%;
+}
+
+/* Grid Items */
+.gridItem {
+  position: relative;
+  background: transparent;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.widgetContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.widgetContainer:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.widget {
+  width: 100%;
+  height: 100%;
+}
+
+/* Widget Controls */
+.widgetControls {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  display: flex;
+  gap: var(--spacing-xs);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.gridItem:hover .widgetControls {
+  opacity: 1;
+}
+
+.controlButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--surface-lift);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--ink-muted);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.controlButton:hover {
+  background: var(--ink);
+  color: var(--surface);
+  border-color: var(--ink);
+}
+
+.controlButton:focus {
+  outline: 2px solid var(--ink-muted);
+  outline-offset: 2px;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: var(--ink-muted);
+  gap: var(--spacing-md);
+}
+
+.emptyState h3 {
+  color: var(--ink);
+  font: var(--body-xl) var(--font-body);
+  margin: 0;
+}
+
+.emptyState p {
+  margin: 0;
+  font: var(--body-lg) var(--font-body);
+}
+
+/* Modal Content */
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.modalActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+  margin-top: var(--spacing-md);
+}
+
+.fileInput {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  width: 100%;
+  font: var(--body-md) var(--font-body);
+}
+
+.fileInput:focus {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: var(--glow-sm);
+}
+
+/* React Grid Layout Overrides */
+.react-grid-item {
+  background: transparent !important;
+  border: none !important;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 2px dashed var(--ink) !important;
+  border-radius: var(--radius-md) !important;
+  opacity: 0.3;
+}
+
+.react-grid-item > .react-resizable-handle {
+  background: var(--ink);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.react-grid-item:hover > .react-resizable-handle {
+  opacity: 0.6;
+}
+
+.react-grid-item > .react-resizable-handle:hover {
+  opacity: 1;
+}
+
+.react-grid-item.react-grid-placeholder > .react-resizable-handle {
+  display: none;
+}
+
+/* Breakpoint-specific styling */
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+  
+  .controlsSection {
+    justify-content: center;
+  }
+  
+  .widgetControls {
+    opacity: 1; /* Always show on mobile */
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .widgetContainer,
+  .controlButton,
+  .widgetControls {
+    transition: none;
+  }
+  
+  .react-grid-item > .react-resizable-handle {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .widgetContainer {
+    border-width: 2px;
+  }
+  
+  .controlButton {
+    border-width: 2px;
+  }
+}

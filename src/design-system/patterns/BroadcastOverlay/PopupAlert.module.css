@@ -4,8 +4,8 @@
 .popupAlert {
   /* Positioning - Top layer above grain/particles */
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  top: var(--space-4);
+  right: var(--space-4);
   z-index: 110; /* Above app content (z: 3) and grain (z: 1-2) */
   
   /* Layout */
@@ -13,18 +13,13 @@
   min-width: 280px;
   
   /* Elevated surface with E3/E4 gradient */
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.08) 0%, 
-    rgba(255, 255, 255, 0.04) 100%
-  );
+  background: var(--surface-e3);
   backdrop-filter: blur(8px);
   
   /* Borders & shadows using tokens */
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-lg);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.24),
-    0 2px 8px rgba(0, 0, 0, 0.12);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-e3);
   
   /* Pointer events - allow interaction */
   pointer-events: auto;
@@ -89,8 +84,8 @@
 .popupAlertContent {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
+  gap: var(--space-3);
+  padding: var(--space-4);
 }
 
 /* Icon container */
@@ -110,16 +105,18 @@
 
 /* Alert title */
 .popupAlertTitle {
-  font: var(--body-md) var(--font-body);
+  font: var(--text-base);
+  font-family: var(--font-mono);
   font-weight: 600;
   color: var(--ink);
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--space-1);
   line-height: 1.4;
 }
 
 /* Alert message */
 .popupAlertMessage {
-  font: var(--body-sm) var(--font-body);
+  font: var(--text-sm);
+  font-family: var(--font-mono);
   color: var(--ink-muted);
   line-height: 1.5;
   word-wrap: break-word;
@@ -138,7 +135,7 @@
   
   /* Styling */
   color: var(--ink-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--border-radius);
   transition: all var(--duration-fast) var(--ease-out);
   
   /* Center the icon */
@@ -149,7 +146,7 @@
 
 .popupAlertDismiss:hover {
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-e1);
 }
 
 .popupAlertDismiss:focus-visible {
@@ -164,14 +161,14 @@
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .popupAlert {
-    top: 0.5rem;
-    right: 0.5rem;
-    left: 0.5rem;
+    top: var(--space-2);
+    right: var(--space-2);
+    left: var(--space-2);
     max-width: none;
   }
   
   .popupAlertContent {
-    padding: var(--spacing-md);
+    padding: var(--space-3);
   }
 }
 
@@ -179,7 +176,7 @@
 @media (prefers-contrast: high) {
   .popupAlert {
     border-width: 2px;
-    background: var(--surface);
+    background: var(--surface-canvas);
     backdrop-filter: none;
   }
   

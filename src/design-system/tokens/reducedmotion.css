@@ -1,13 +1,181 @@
+/* Reduced Motion Global Styles */
+
+/* Global reduced motion class */
+.reduce-motion,
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Prefers-reduced-motion media query */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+  
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
   
-  /* Instant end-states */
+  /* Component-specific reduced motion states */
+  
+  /* Card - instant state with emphasis border */
   .card:hover {
-    transform: none;
-    box-shadow: 0 0 0 2px var(--border-strong);
+    transform: none !important;
+    box-shadow: none !important;
+    border: 2px solid var(--border-strong) !important;
+  }
+  
+  /* Table - remove hover transitions */
+  .table tbody tr:hover {
+    transition: none !important;
+  }
+  
+  /* Chart - instant draw */
+  .chart path {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+  
+  /* Modal - instant appearance */
+  .modal {
+    animation: none !important;
+    transform: translate(-50%, -50%) !important;
+  }
+  
+  .modal-backdrop {
+    animation: none !important;
+  }
+  
+  /* Drawer - instant slide */
+  .drawer {
+    transition: none !important;
+    transform: translateX(0) !important;
+  }
+  
+  .drawer.position-left {
+    transform: translateX(0) !important;
+  }
+  
+  .drawer.position-top {
+    transform: translateY(0) !important;
+  }
+  
+  .drawer.position-bottom {
+    transform: translateY(0) !important;
+  }
+  
+  /* Progress - instant 100% */
+  .progress {
+    width: 100% !important;
+  }
+  
+  /* Loader - static pulse instead of spin */
+  .loader {
+    animation: none !important;
+    opacity: 0.5 !important;
+  }
+  
+  /* Skeleton - static grey instead of shimmer */
+  .skeleton {
+    animation: none !important;
+    background-color: #333 !important;
+    opacity: 0.5 !important;
+  }
+  
+  /* List stagger - instant appearance */
+  .list-grid > *,
+  .card-grid.animate > * {
+    transition: none !important;
+    transition-delay: 0ms !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  
+  /* Remove scan-line effects */
+  .card::before {
+    transition: none !important;
+    opacity: 0 !important;
+  }
+  
+  /* Input focus - instant glow */
+  .input:focus {
+    transition: none !important;
+  }
+  
+  /* Button hover - instant states */
+  .button:hover {
+    transition: none !important;
+  }
+  
+  /* Toast - instant appearance */
+  .toast {
+    animation: none !important;
+    transform: translateX(0) !important;
+  }
+  
+  /* Banner - instant slide */
+  .banner {
+    animation: none !important;
+    transform: translateY(0) !important;
+  }
+  
+  /* KPI Tile - instant state */
+  .kpi-tile {
+    animation: none !important;
+    transform: none !important;
+  }
+  
+  /* Tabs - instant underline */
+  .tabs .tab-indicator {
+    transition: none !important;
+  }
+  
+  /* Accordion - instant expand */
+  .accordion-content {
+    transition: none !important;
+    height: auto !important;
+  }
+}
+
+/* JavaScript detection class for manual application */
+body.reduce-motion,
+body.reduce-motion *,
+body.reduce-motion *::before,
+body.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Visibility-based animation pause */
+body.page-hidden * {
+  animation-play-state: paused !important;
+}
+
+/* Respect motion preferences in JavaScript animations */
+@media (prefers-reduced-motion: reduce) {
+  body {
+    --motion-enabled: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    --motion-enabled: 1;
   }
 }

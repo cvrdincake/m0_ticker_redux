@@ -1,365 +1,488 @@
 import { useState } from 'react';
-import { PopupAlert } from '@/design-system/patterns/BroadcastOverlay';
-import { usePopupQueue } from '@/design-system/patterns/BroadcastOverlay/usePopupQueue.js';
+import { AnimatedList } from '@/design-system/components/List';
+import { ToastProvider, useToast } from '@/design-system/patterns/Toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 /**
- * OverlayDemo - Example usage page for PopupAlert broadcast overlay pattern
- * Demonstrates portal mounting, queue management, and interactive controls
+ * OverlayDemo - Demo page showcasing AnimatedList and ToastProvider integration
+ * Demonstrates staggered animations, toast notifications, and focus management
  */
 export const OverlayDemo = () => {
-  const [singleAlert, setSingleAlert] = useState({
-    active: false,
-    title: '',
-    message: '',
-    icon: null,
+  const [listItems, setListItems] = useState([
+    { id: 1, content: 'Market data feed active' },
+    { id: 2, content: 'Portfolio synchronised' },
+    { id: 3, content: 'Real-time quotes enabled' },
+    { id: 4, content: 'Risk monitoring active' },
+    { id: 5, content: 'Order management ready' }
+  ]);
+
+  const [showModal, setShowModal] = useState(false);
+  const modalRef = useFocusTrap(showModal, {
+    onEscape: () => setShowModal(false),
+    restoreFocus: true
   });
 
-  const { push, clear, current, queueLength } = usePopupQueue(3);
-
-  // Predefined alerts for demo
-  const demoAlerts = [
-    {
-      title: 'Market Alert',
-      message: 'NASDAQ has opened for trading. Current volume is above average.',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-        </svg>
-      ),
-      duration: 4000,
-    },
-    {
-      title: 'System Update',
-      message: 'A new version of the trading platform is available. Update will install automatically during maintenance window.',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-        </svg>
-      ),
-      duration: 6000,
-    },
-    {
-      title: 'Price Target Hit',
-      message: 'AAPL has reached your price target of $150.00. Consider reviewing your position.',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-        </svg>
-      ),
-      duration: 5000,
-    },
-    {
-      title: 'Connection Warning',
-      message: 'Network latency detected. Your orders may experience delays.',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-        </svg>
-      ),
-      duration: 7000,
-    },
-  ];
-
-  // Show single alert
-  const showSingleAlert = (alertData) => {
-    setSingleAlert({
-      active: true,
-      ...alertData,
-    });
+  const addItem = () => {
+    const newId = Math.max(...listItems.map(item => item.id), 0) + 1;
+    const newItem = {
+      id: newId,
+      content: `New item ${newId} - ${Date.now()}`
+    };
+    setListItems(prev => [...prev, newItem]);
   };
 
-  // Hide single alert
-  const hideSingleAlert = () => {
-    setSingleAlert(prev => ({ ...prev, active: false }));
+  const generateLongList = () => {
+    const longList = Array.from({ length: 50 }, (_, i) => ({
+      id: i + 1,
+      content: `Long list item ${i + 1} - ${i < 5 ? 'Animated' : 'Instant'}`
+    }));
+    setListItems(longList);
   };
 
-  // Add alert to queue
-  const addToQueue = (alertData) => {
-    push(alertData);
+  const resetList = () => {
+    setListItems([
+      { id: 1, content: 'Market data feed active' },
+      { id: 2, content: 'Portfolio synchronised' },
+      { id: 3, content: 'Real-time quotes enabled' },
+      { id: 4, content: 'Risk monitoring active' },
+      { id: 5, content: 'Order management ready' }
+    ]);
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      background: 'var(--surface)',
-      color: 'var(--ink)',
-      padding: '2rem',
-    }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <header style={{ marginBottom: '3rem' }}>
-          <h1 style={{ 
-            font: 'var(--display-lg) var(--font-display)',
-            marginBottom: '1rem' 
-          }}>
-            PopupAlert Demo
-          </h1>
-          <p style={{ 
-            font: 'var(--body-lg) var(--font-body)',
-            color: 'var(--ink-muted)',
-            lineHeight: 1.6 
-          }}>
-            Demonstrates the broadcast overlay pattern with portal rendering, 
-            accessibility features, and queue management. Try different alerts 
-            and interactions below.
-          </p>
-        </header>
+    <ToastProvider>
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--surface-canvas)',
+        color: 'var(--ink)',
+        padding: '2rem',
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <header style={{ marginBottom: '3rem' }}>
+            <h1 style={{ 
+              font: 'var(--text-2xl)',
+              fontFamily: 'var(--font-mono)',
+              marginBottom: '1rem',
+              color: 'var(--ink)'
+            }}>
+              Motion & Toast Demo
+            </h1>
+            <p style={{ 
+              font: 'var(--text-base)',
+              color: 'var(--ink-subtle)',
+              lineHeight: 1.6 
+            }}>
+              Demonstrates AnimatedList stagger animations, toast notifications, and focus trap integration 
+              with reduced-motion support and broadcast-safe patterns.
+            </p>
+          </header>
 
-        {/* Single Alert Controls */}
-        <section style={{ marginBottom: '3rem' }}>
-          <h2 style={{ 
-            font: 'var(--display-md) var(--font-display)',
-            marginBottom: '1rem' 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '3rem',
+            alignItems: 'start'
           }}>
-            Single Alert
-          </h2>
-          <p style={{ 
-            font: 'var(--body-md) var(--font-body)',
-            color: 'var(--ink-muted)',
-            marginBottom: '1.5rem' 
-          }}>
-            Show individual alerts with portal rendering. Hover to pause auto-dismiss, 
-            press Esc to dismiss manually.
-          </p>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '1rem' 
-          }}>
-            {demoAlerts.map((alert, index) => (
-              <button
-                key={index}
-                onClick={() => showSingleAlert(alert)}
-                style={{
-                  padding: 'var(--spacing-md) var(--spacing-lg)',
-                  background: 'var(--ink)',
-                  color: 'var(--surface)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-md)',
-                  cursor: 'pointer',
-                  font: 'var(--body-sm) var(--font-body)',
-                  transition: 'all var(--duration-fast) var(--ease-out)',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = 'var(--ink-muted)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'var(--ink)';
-                }}
-              >
-                {alert.title}
-              </button>
-            ))}
+            {/* AnimatedList Demo */}
+            <section>
+              <h2 style={{ 
+                font: 'var(--text-xl)',
+                fontFamily: 'var(--font-mono)',
+                marginBottom: '1rem' 
+              }}>
+                Animated List
+              </h2>
+              <p style={{ 
+                font: 'var(--text-sm)',
+                color: 'var(--ink-subtle)',
+                marginBottom: '1.5rem' 
+              }}>
+                First 5 items animate with stagger, remaining appear instantly. 
+                Large lists (200+ items) render instantly for performance.
+              </p>
+              
+              <div style={{ 
+                display: 'flex', 
+                gap: '0.5rem', 
+                marginBottom: '1.5rem',
+                flexWrap: 'wrap' 
+              }}>
+                <button
+                  onClick={addItem}
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    background: 'var(--surface-e1)',
+                    color: 'var(--ink)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--border-radius)',
+                    cursor: 'pointer',
+                    font: 'var(--text-sm)',
+                    fontFamily: 'var(--font-mono)',
+                    transition: 'all var(--duration-fast) var(--ease-out)',
+                  }}
+                >
+                  Add Item
+                </button>
+                
+                <button
+                  onClick={generateLongList}
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    background: 'var(--surface-e1)',
+                    color: 'var(--ink)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--border-radius)',
+                    cursor: 'pointer',
+                    font: 'var(--text-sm)',
+                    fontFamily: 'var(--font-mono)',
+                    transition: 'all var(--duration-fast) var(--ease-out)',
+                  }}
+                >
+                  Long List (50)
+                </button>
+                
+                <button
+                  onClick={resetList}
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    background: 'transparent',
+                    color: 'var(--ink-subtle)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--border-radius)',
+                    cursor: 'pointer',
+                    font: 'var(--text-sm)',
+                    fontFamily: 'var(--font-mono)',
+                    transition: 'all var(--duration-fast) var(--ease-out)',
+                  }}
+                >
+                  Reset
+                </button>
+              </div>
+              
+              <div style={{ 
+                maxHeight: '400px', 
+                overflowY: 'auto',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--border-radius)',
+                padding: 'var(--space-2)'
+              }}>
+                <AnimatedList 
+                  items={listItems} 
+                  staggerDelay={0.04}
+                  aria-label="Demo list items"
+                />
+              </div>
+              
+              <div style={{ 
+                font: 'var(--text-xs)',
+                color: 'var(--ink-subtle)',
+                marginTop: '1rem',
+                padding: 'var(--space-2)',
+                background: 'var(--surface-e1)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--border-radius)',
+              }}>
+                Items: {listItems.length} • 
+                Animated: {Math.min(listItems.length, 5)} • 
+                Instant: {Math.max(0, listItems.length - 5)}
+              </div>
+            </section>
+
+            {/* Toast Demo */}
+            <ToastDemoSection />
           </div>
-        </section>
 
-        {/* Queue Management */}
-        <section style={{ marginBottom: '3rem' }}>
-          <h2 style={{ 
-            font: 'var(--display-md) var(--font-display)',
-            marginBottom: '1rem' 
-          }}>
-            Queue Management
-          </h2>
-          <p style={{ 
-            font: 'var(--body-md) var(--font-body)',
-            color: 'var(--ink-muted)',
-            marginBottom: '1rem' 
-          }}>
-            Add multiple alerts to queue. They&apos;ll show one at a time with serialised timing. 
-            Maximum 3 alerts in queue with drop-oldest policy.
-          </p>
-          
-          <div style={{ 
-            display: 'flex', 
-            gap: '1rem', 
-            marginBottom: '1rem',
-            flexWrap: 'wrap' 
-          }}>
-            {demoAlerts.map((alert, index) => (
-              <button
-                key={`queue-${index}`}
-                onClick={() => addToQueue(alert)}
-                style={{
-                  padding: 'var(--spacing-sm) var(--spacing-md)',
-                  background: 'var(--surface-lift)',
-                  color: 'var(--ink)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)',
-                  cursor: 'pointer',
-                  font: 'var(--body-xs) var(--font-body)',
-                  transition: 'all var(--duration-fast) var(--ease-out)',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.borderColor = 'var(--border-strong)';
-                  e.target.style.background = 'var(--surface)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.borderColor = 'var(--border)';
-                  e.target.style.background = 'var(--surface-lift)';
-                }}
-              >
-                Queue {alert.title}
-              </button>
-            ))}
+          {/* Modal Demo */}
+          <section style={{ marginTop: '3rem' }}>
+            <h2 style={{ 
+              font: 'var(--text-xl)',
+              fontFamily: 'var(--font-mono)',
+              marginBottom: '1rem' 
+            }}>
+              Focus Trap Demo
+            </h2>
             
             <button
-              onClick={clear}
+              onClick={() => setShowModal(true)}
               style={{
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                background: 'transparent',
-                color: 'var(--ink-muted)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
+                padding: 'var(--space-3) var(--space-4)',
+                background: 'var(--ink)',
+                color: 'var(--surface-canvas)',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
                 cursor: 'pointer',
-                font: 'var(--body-xs) var(--font-body)',
-                transition: 'all var(--duration-fast) var(--ease-out)',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.borderColor = 'var(--border-strong)';
-                e.target.style.color = 'var(--ink)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.borderColor = 'var(--border)';
-                e.target.style.color = 'var(--ink-muted)';
+                font: 'var(--text-base)',
+                fontFamily: 'var(--font-mono)',
               }}
             >
-              Clear Queue
+              Open Modal with Focus Trap
             </button>
-          </div>
-          
-          <div style={{ 
-            font: 'var(--body-sm) var(--font-body)',
-            color: 'var(--ink-subtle)',
-            background: 'var(--surface-lift)',
-            padding: 'var(--spacing-sm) var(--spacing-md)',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--border)',
-          }}>
-            Queue Status: {queueLength} alert{queueLength !== 1 ? 's' : ''} pending
-            {current && ' • Currently showing: ' + current.title}
-          </div>
-        </section>
+          </section>
 
-        {/* Features & Testing */}
-        <section>
-          <h2 style={{ 
-            font: 'var(--display-md) var(--font-display)',
-            marginBottom: '1rem' 
-          }}>
-            Features & Testing
-          </h2>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-            gap: '1.5rem' 
-          }}>
-            <div style={{
-              padding: 'var(--spacing-lg)',
-              background: 'var(--surface-lift)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)',
+          {/* Features Overview */}
+          <section style={{ marginTop: '3rem' }}>
+            <h2 style={{ 
+              font: 'var(--text-xl)',
+              fontFamily: 'var(--font-mono)',
+              marginBottom: '1rem' 
             }}>
-              <h3 style={{ 
-                font: 'var(--body-lg) var(--font-body)',
-                fontWeight: 600,
-                marginBottom: 'var(--spacing-sm)' 
-              }}>
-                Accessibility
-              </h3>
-              <ul style={{ 
-                font: 'var(--body-sm) var(--font-body)',
-                color: 'var(--ink-muted)',
-                listStyle: 'none',
-                padding: 0,
-                margin: 0 
-              }}>
-                <li>• role=&quot;alert&quot; with aria-live=&quot;assertive&quot;</li>
-                <li>• No focus trap (broadcast-safe)</li>
-                <li>• Screen reader announcements</li>
-                <li>• Keyboard navigation (Esc to dismiss)</li>
-              </ul>
-            </div>
+              Features Demonstrated
+            </h2>
             
-            <div style={{
-              padding: 'var(--spacing-lg)',
-              background: 'var(--surface-lift)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)',
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+              gap: '1.5rem' 
             }}>
-              <h3 style={{ 
-                font: 'var(--body-lg) var(--font-body)',
-                fontWeight: 600,
-                marginBottom: 'var(--spacing-sm)' 
-              }}>
-                Motion Policy
-              </h3>
-              <ul style={{ 
-                font: 'var(--body-sm) var(--font-body)',
-                color: 'var(--ink-muted)',
-                listStyle: 'none',
-                padding: 0,
-                margin: 0 
-              }}>
-                <li>• ≤240ms animations (transform/opacity)</li>
-                <li>• Tokenised durations (--duration-base)</li>
-                <li>• Respects prefers-reduced-motion</li>
-                <li>• Smooth enter/exit transitions</li>
-              </ul>
+              <FeatureCard 
+                title="Reduced Motion"
+                description="Respects prefers-reduced-motion and .reduce-motion class. Animations become instant or fade-only."
+              />
+              <FeatureCard 
+                title="Performance Guards"
+                description="AnimatedList caps at 5 animated items. Large lists (200+) render instantly."
+              />
+              <FeatureCard 
+                title="Toast Queue Management"
+                description="Maximum 4 toasts shown. Hover/focus pauses auto-dismiss. Visibility pause support."
+              />
+              <FeatureCard 
+                title="SSR Safety"
+                description="All components handle server-side rendering gracefully with proper guards."
+              />
             </div>
-            
-            <div style={{
-              padding: 'var(--spacing-lg)',
-              background: 'var(--surface-lift)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)',
-            }}>
+          </section>
+        </div>
+
+        {/* Modal */}
+        {showModal && (
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 100
+            }}
+            onClick={() => setShowModal(false)}
+          >
+            <div
+              ref={modalRef.ref}
+              style={{
+                background: 'var(--surface-e2)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--border-radius)',
+                padding: 'var(--space-6)',
+                maxWidth: '400px',
+                width: '90%'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <h3 style={{ 
-                font: 'var(--body-lg) var(--font-body)',
-                fontWeight: 600,
-                marginBottom: 'var(--spacing-sm)' 
+                font: 'var(--text-lg)',
+                fontFamily: 'var(--font-mono)',
+                marginBottom: 'var(--space-3)' 
               }}>
-                Interaction
+                Focus Trap Modal
               </h3>
-              <ul style={{ 
-                font: 'var(--body-sm) var(--font-body)',
-                color: 'var(--ink-muted)',
-                listStyle: 'none',
-                padding: 0,
-                margin: 0 
+              <p style={{ 
+                font: 'var(--text-sm)',
+                color: 'var(--ink-subtle)',
+                marginBottom: 'var(--space-4)' 
               }}>
-                <li>• Hover to pause auto-dismiss timer</li>
-                <li>• Click dismiss button or press Esc</li>
-                <li>• Portal rendering to document.body</li>
-                <li>• z-index layering (110) above content</li>
-              </ul>
+                Tab navigation is trapped within this modal. Try Tab/Shift+Tab to cycle through focusable elements. 
+                Press Escape to close.
+              </p>
+              
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    background: 'var(--ink)',
+                    color: 'var(--surface-canvas)',
+                    border: 'none',
+                    borderRadius: 'var(--border-radius)',
+                    cursor: 'pointer',
+                    font: 'var(--text-sm)',
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                >
+                  Action
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    background: 'transparent',
+                    color: 'var(--ink)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--border-radius)',
+                    cursor: 'pointer',
+                    font: 'var(--text-sm)',
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </section>
+        )}
       </div>
-
-      {/* Single Alert Portal */}
-      <PopupAlert
-        title={singleAlert.title}
-        message={singleAlert.message}
-        icon={singleAlert.icon}
-        active={singleAlert.active}
-        duration={singleAlert.duration || 5000}
-        onDismiss={hideSingleAlert}
-      />
-
-      {/* Queue Alert Portal */}
-      {current && (
-        <PopupAlert
-          title={current.title}
-          message={current.message}
-          icon={current.icon}
-          active={current.active}
-          duration={current.duration}
-          onDismiss={current.onDismiss}
-        />
-      )}
-    </div>
+    </ToastProvider>
   );
 };
+
+// Toast demo section component
+function ToastDemoSection() {
+  const { addToast } = useToast();
+  
+  const showToast = (message, duration = 4000) => {
+    addToast(message, duration);
+  };
+
+  return (
+    <section>
+      <h2 style={{ 
+        font: 'var(--text-xl)',
+        fontFamily: 'var(--font-mono)',
+        marginBottom: '1rem' 
+      }}>
+        Toast Notifications
+      </h2>
+      <p style={{ 
+        font: 'var(--text-sm)',
+        color: 'var(--ink-subtle)',
+        marginBottom: '1.5rem' 
+      }}>
+        Broadcast-safe notifications with hover/focus pause, visibility pause, 
+        and queue management (max 4 toasts).
+      </p>
+      
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        gap: '0.5rem', 
+        marginBottom: '1.5rem' 
+      }}>
+        <button
+          onClick={() => showToast('Market update: NASDAQ opened +0.5%')}
+          style={{
+            padding: 'var(--space-2) var(--space-3)',
+            background: 'var(--surface-e1)',
+            color: 'var(--ink)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--border-radius)',
+            cursor: 'pointer',
+            font: 'var(--text-sm)',
+            fontFamily: 'var(--font-mono)',
+            textAlign: 'left'
+          }}
+        >
+          Market Toast
+        </button>
+        
+        <button
+          onClick={() => showToast('Order executed: 100 shares AAPL @ $150.00', 6000)}
+          style={{
+            padding: 'var(--space-2) var(--space-3)',
+            background: 'var(--surface-e1)',
+            color: 'var(--ink)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--border-radius)',
+            cursor: 'pointer',
+            font: 'var(--text-sm)',
+            fontFamily: 'var(--font-mono)',
+            textAlign: 'left'
+          }}
+        >
+          Order Toast
+        </button>
+        
+        <button
+          onClick={() => showToast('This is a longer toast message that demonstrates how the toast component handles extended content gracefully without breaking the layout or accessibility features', 8000)}
+          style={{
+            padding: 'var(--space-2) var(--space-3)',
+            background: 'var(--surface-e1)',
+            color: 'var(--ink)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--border-radius)',
+            cursor: 'pointer',
+            font: 'var(--text-sm)',
+            fontFamily: 'var(--font-mono)',
+            textAlign: 'left'
+          }}
+        >
+          Long Toast
+        </button>
+        
+        <button
+          onClick={() => {
+            // Show multiple toasts to test queue
+            for (let i = 1; i <= 6; i++) {
+              setTimeout(() => showToast(`Queue test ${i}`), i * 100);
+            }
+          }}
+          style={{
+            padding: 'var(--space-2) var(--space-3)',
+            background: 'transparent',
+            color: 'var(--ink-subtle)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--border-radius)',
+            cursor: 'pointer',
+            font: 'var(--text-sm)',
+            fontFamily: 'var(--font-mono)',
+            textAlign: 'left'
+          }}
+        >
+          Test Queue (6 toasts)
+        </button>
+      </div>
+      
+      <div style={{ 
+        font: 'var(--text-xs)',
+        color: 'var(--ink-subtle)',
+        padding: 'var(--space-2)',
+        background: 'var(--surface-e1)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--border-radius)',
+      }}>
+        💡 Hover toasts to pause auto-dismiss • Press Enter/Space to dismiss when focused
+      </div>
+    </section>
+  );
+}
+
+// Feature card component
+function FeatureCard({ title, description }) {
+  return (
+    <div style={{
+      padding: 'var(--space-4)',
+      background: 'var(--surface-e1)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--border-radius)',
+    }}>
+      <h3 style={{ 
+        font: 'var(--text-base)',
+        fontFamily: 'var(--font-mono)',
+        fontWeight: 600,
+        marginBottom: 'var(--space-2)' 
+      }}>
+        {title}
+      </h3>
+      <p style={{ 
+        font: 'var(--text-sm)',
+        color: 'var(--ink-subtle)',
+        lineHeight: 1.5,
+        margin: 0
+      }}>
+        {description}
+      </p>
+    </div>
+  );
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { PopupAlert } from './PopupAlert.jsx';
 
 // Mock ReactDOM.createPortal for testing
@@ -10,6 +10,21 @@ vi.mock('react-dom', async () => {
     createPortal: (children) => children
   };
 });
+
+// Mock motionGuard
+vi.mock('@/lib/motionGuard', () => ({
+  getGSAP: vi.fn(() => ({
+    to: vi.fn((target, options) => {
+      // Call onComplete immediately for tests
+      setTimeout(() => options.onComplete?.(), 0);
+    }),
+    fromTo: vi.fn((target, fromOptions, toOptions) => {
+      // Call onComplete immediately for tests
+      setTimeout(() => toOptions.onComplete?.(), 0);
+    }),
+  })),
+  shouldUseMotion: vi.fn(() => true),
+}));
 
 describe('PopupAlert', () => {
   beforeEach(() => {
@@ -94,7 +109,7 @@ describe('PopupAlert', () => {
       );
 
       const alert = screen.getByTestId('popup-alert');
-      expect(alert).toHaveClass('popupAlertEntering');
+      expect(alert.className).toContain('popupAlertEntering');
     });
   });
 
@@ -112,16 +127,16 @@ describe('PopupAlert', () => {
         />
       );
 
-      // Fast-forward time by duration + exit animation time
-      vi.advanceTimersByTime(2000);
-      await waitFor(() => {
-        vi.advanceTimersByTime(240); // Exit animation duration
+      // Fast-forward time by duration in act()
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+        await waitFor(() => {
+          expect(mockOnDismiss).toHaveBeenCalledTimes(1);
+        });
       });
-
-      expect(mockOnDismiss).toHaveBeenCalledTimes(1);
     });
 
-    it('does not auto-dismiss when duration is 0', () => {
+    it('does not auto-dismiss when duration is 0', async () => {
       const mockOnDismiss = vi.fn();
       
       render(
@@ -134,11 +149,13 @@ describe('PopupAlert', () => {
         />
       );
 
-      vi.advanceTimersByTime(5000);
+      await act(async () => {
+        vi.advanceTimersByTime(5000);
+      });
       expect(mockOnDismiss).not.toHaveBeenCalled();
     });
 
-    it('does not auto-dismiss when onDismiss is not provided', () => {
+    it('does not auto-dismiss when onDismiss is not provided', async () => {
       render(
         <PopupAlert
           title="Test Title"
@@ -149,7 +166,9 @@ describe('PopupAlert', () => {
       );
 
       // Should not throw error
-      vi.advanceTimersByTime(2000);
+      await act(async () => {
+        vi.advanceTimersByTime(2000);
+      });
     });
   });
 
@@ -169,26 +188,30 @@ describe('PopupAlert', () => {
 
       const alert = screen.getByTestId('popup-alert');
 
-      // Advance halfway through duration
-      vi.advanceTimersByTime(1000);
+      await act(async () => {
+        // Advance halfway through duration
+        vi.advanceTimersByTime(1000);
 
-      // Hover - should pause timer
-      fireEvent.mouseEnter(alert);
+        // Hover - should pause timer
+        fireEvent.mouseEnter(alert);
+        
+        // Advance past original duration - should not dismiss
+        vi.advanceTimersByTime(2000);
+      });
       
-      // Advance past original duration - should not dismiss
-      vi.advanceTimersByTime(2000);
       expect(mockOnDismiss).not.toHaveBeenCalled();
 
-      // Mouse leave - should resume timer with remaining time
-      fireEvent.mouseLeave(alert);
-      
-      // Advance by remaining time (1000ms) + exit animation
-      vi.advanceTimersByTime(1000);
-      await waitFor(() => {
-        vi.advanceTimersByTime(240);
+      await act(async () => {
+        // Mouse leave - should resume timer with remaining time
+        fireEvent.mouseLeave(alert);
+        
+        // Advance by remaining time (1000ms) + exit animation
+        vi.advanceTimersByTime(1000);
+        
+        await waitFor(() => {
+          expect(mockOnDismiss).toHaveBeenCalledTimes(1);
+        });
       });
-
-      expect(mockOnDismiss).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -205,14 +228,14 @@ describe('PopupAlert', () => {
         />
       );
 
-      fireEvent.keyDown(document, { key: 'Escape' });
-
-      // Wait for exit animation
-      await waitFor(() => {
-        vi.advanceTimersByTime(240);
+      await act(async () => {
+        fireEvent.keyDown(document, { key: 'Escape' });
+        
+        // Wait for exit animation
+        await waitFor(() => {
+          expect(mockOnDismiss).toHaveBeenCalledTimes(1);
+        });
       });
-
-      expect(mockOnDismiss).toHaveBeenCalledTimes(1);
     });
 
     it('does not dismiss on other keys', () => {
@@ -265,13 +288,14 @@ describe('PopupAlert', () => {
       );
 
       const dismissButton = screen.getByLabelText('Dismiss alert');
-      fireEvent.click(dismissButton);
+      
+      await act(async () => {
+        fireEvent.click(dismissButton);
 
-      await waitFor(() => {
-        vi.advanceTimersByTime(240);
+        await waitFor(() => {
+          expect(mockOnDismiss).toHaveBeenCalledTimes(1);
+        });
       });
-
-      expect(mockOnDismiss).toHaveBeenCalledTimes(1);
     });
 
     it('has correct accessibility attributes', () => {
@@ -304,22 +328,26 @@ describe('PopupAlert', () => {
       );
 
       const alert = screen.getByTestId('popup-alert');
-      expect(alert).toHaveClass('popupAlertEntering');
+      expect(alert.className).toContain('popupAlertEntering');
 
       // Trigger dismiss by changing active to false
-      rerender(
-        <PopupAlert
-          title="Test Title"
-          message="Test message"
-          active={false}
-          onDismiss={mockOnDismiss}
-        />
-      );
+      await act(async () => {
+        rerender(
+          <PopupAlert
+            title="Test Title"
+            message="Test message"
+            active={false}
+            onDismiss={mockOnDismiss}
+          />
+        );
 
-      expect(alert).toHaveClass('popupAlertExiting');
+        await waitFor(() => {
+          expect(alert.className).toContain('popupAlertExiting');
+        });
+      });
     });
 
-    it('cleans up timers when unmounted', () => {
+    it('cleans up timers when unmounted', async () => {
       const mockOnDismiss = vi.fn();
       
       const { unmount } = render(
@@ -332,10 +360,14 @@ describe('PopupAlert', () => {
         />
       );
 
+      // Unmount immediately before timer triggers
       unmount();
 
       // Advance past duration - should not call onDismiss since component is unmounted
-      vi.advanceTimersByTime(3000);
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+      
       expect(mockOnDismiss).not.toHaveBeenCalled();
     });
   });

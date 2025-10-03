@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 
 // Import CSS to ensure variables are available
-import '../tokens/index.css';
+import '@/design-system/tokens/index.css';
 
 describe('Typography & Density Scale Integration', () => {
   beforeEach(() => {
@@ -11,8 +11,8 @@ describe('Typography & Density Scale Integration', () => {
     const style = document.createElement('style');
     style.type = 'text/css';
     style.innerHTML = `
-      @import url('../tokens/typography.css');
-      @import url('../tokens/spacing.css');
+      @import url('@/design-system/tokens/typography.css');
+      @import url('@/design-system/tokens/spacing.css');
       
       :root {
         --font-display: 'JetBrains Mono', 'Roboto Mono', 'Courier New', monospace;

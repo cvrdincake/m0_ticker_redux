@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
-import { useReducedMotion } from '@/hooks';
+import { useFocusTrap } from '@/hooks';
 import styles from './Drawer.module.css';
 
 /**
@@ -19,70 +19,16 @@ const Drawer = forwardRef(({
   closeOnEscape = true,
   showCloseButton = true,
   overlay = true,
-  initialFocus,
   className,
   overlayClassName,
   contentClassName,
   ...props
 }, ref) => {
   const drawerRef = useRef(null);
-  const previousActiveElement = useRef(null);
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Focus management
-  useEffect(() => {
-    if (!isOpen) return;
-
-    // Store previously focused element
-    previousActiveElement.current = document.activeElement;
-
-    // Focus management after drawer opens
-    const focusDrawer = () => {
-      const drawer = drawerRef.current;
-      if (!drawer) return;
-
-      if (initialFocus) {
-        const element = typeof initialFocus === 'string' 
-          ? drawer.querySelector(initialFocus)
-          : initialFocus.current;
-        if (element) {
-          element.focus();
-          return;
-        }
-      }
-
-      // Focus first interactive element in body or drawer itself
-      const bodyElement = drawer.querySelector(`.${styles.body}`);
-      const focusableElements = bodyElement ? bodyElement.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      ) : [];
-      
-      if (focusableElements.length > 0) {
-        focusableElements[0].focus();
-      } else {
-        // Fallback to all focusable elements if no body elements
-        const allFocusable = drawer.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (allFocusable.length > 0) {
-          allFocusable[0].focus();
-        } else {
-          drawer.focus();
-        }
-      }
-    };
-
-    // Delay focus to ensure drawer is rendered
-    const timeoutId = setTimeout(focusDrawer, 100);
-
-    return () => {
-      clearTimeout(timeoutId);
-      // Restore focus when drawer closes
-      if (previousActiveElement.current) {
-        previousActiveElement.current.focus();
-      }
-    };
-  }, [isOpen, initialFocus]);
+  // Focus trap implementation
+  const focusTrap = useFocusTrap(drawerRef, isOpen);
 
   // Keyboard event handling
   useEffect(() => {
@@ -93,46 +39,18 @@ const Drawer = forwardRef(({
         event.preventDefault();
         onClose?.();
       }
-
-      // Tab trapping
-      if (event.key === 'Tab') {
-        const drawer = drawerRef.current;
-        if (!drawer) return;
-
-        const focusableElements = Array.from(drawer.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        ));
-
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey) {
-          if (document.activeElement === firstElement) {
-            event.preventDefault();
-            lastElement.focus();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            event.preventDefault();
-            firstElement.focus();
-          }
-        }
-      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, closeOnEscape, onClose]);
 
-  // Prevent body scroll when drawer is open
+  // Body scroll lock
   useEffect(() => {
     if (isOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
+      document.body.classList.add('drawer-open');
       return () => {
-        document.body.style.overflow = originalOverflow;
+        document.body.classList.remove('drawer-open');
       };
     }
   }, [isOpen]);
@@ -156,6 +74,7 @@ const Drawer = forwardRef(({
 
   const overlayClasses = [
     styles.overlay,
+    prefersReducedMotion && styles.reducedMotion,
     overlayClassName
   ].filter(Boolean).join(' ');
 
@@ -254,8 +173,6 @@ Drawer.propTypes = {
   showCloseButton: PropTypes.bool,
   /** Whether to show overlay backdrop */
   overlay: PropTypes.bool,
-  /** Element to focus initially (selector string or ref) */
-  initialFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   /** Additional CSS classes for drawer */
   className: PropTypes.string,
   /** Additional CSS classes for overlay */

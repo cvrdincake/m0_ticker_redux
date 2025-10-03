@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PopupAlert > Snapshots > matches snapshot for default state 1`] = `null`;
+
+exports[`PopupAlert > Snapshots > matches snapshot for long message 1`] = `null`;
+
+exports[`PopupAlert > Snapshots > matches snapshot with icon 1`] = `null`;

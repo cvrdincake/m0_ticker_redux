@@ -1,0 +1,237 @@
+.widgetWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Error states */
+.errorFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border: 1px dashed var(--danger);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+}
+
+.errorContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  text-align: center;
+  padding: var(--spacing-md);
+}
+
+.errorTitle {
+  font: var(--body-xs) var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--danger);
+}
+
+.errorMessage {
+  font: var(--body-sm) var(--font-body);
+  color: var(--ink-muted);
+  margin-bottom: var(--spacing-xs);
+}
+
+.errorDetails {
+  font: var(--display-xs) var(--font-display);
+  color: var(--ink-subtle);
+  max-width: 200px;
+  word-break: break-word;
+}
+
+.retryButton {
+  background: var(--danger);
+  color: var(--ink);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font: var(--body-sm) var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.retryButton:hover {
+  opacity: 0.8;
+}
+
+.retryButton:focus {
+  outline: 2px solid var(--ink-muted);
+  outline-offset: 2px;
+}
+
+/* Loading skeleton */
+.skeleton {
+  height: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.skeletonContent {
+  padding: var(--spacing-md);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.skeletonHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeletonTitle,
+.skeletonLine,
+.skeletonLineShort,
+.skeletonCell,
+.skeletonKpiLabel,
+.skeletonKpiValue {
+  background: var(--surface-lift);
+  border-radius: var(--radius-sm);
+  opacity: 0.3;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonTitle {
+  height: 16px;
+  width: 40%;
+}
+
+.skeletonBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.skeletonLine {
+  height: 12px;
+  width: 100%;
+}
+
+.skeletonLineShort {
+  height: 12px;
+  width: 60%;
+}
+
+/* Chart skeleton */
+.skeletonChart {
+  display: flex;
+  align-items: end;
+  gap: var(--spacing-xs);
+  height: 100px;
+  padding: var(--spacing-sm) 0;
+}
+
+.skeletonBar {
+  flex: 1;
+  background: var(--surface-lift);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  opacity: 0.3;
+  animation: pulse 1.5s ease-in-out infinite;
+  min-height: 20%;
+}
+
+/* Table skeleton */
+.skeletonTable {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.skeletonRow {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.skeletonCell {
+  flex: 1;
+  height: 16px;
+}
+
+/* KPI skeleton */
+.skeletonKpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.skeletonKpiLabel {
+  height: 12px;
+  width: 40%;
+}
+
+.skeletonKpiValue {
+  height: 24px;
+  width: 60%;
+}
+
+/* Empty state */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border: 1px dashed var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+}
+
+.emptyContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  text-align: center;
+  padding: var(--spacing-md);
+  opacity: 0.6;
+}
+
+.emptyTitle {
+  font: var(--body-xs) var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--ink-muted);
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeletonTitle,
+  .skeletonLine,
+  .skeletonLineShort,
+  .skeletonCell,
+  .skeletonKpiLabel,
+  .skeletonKpiValue,
+  .skeletonBar {
+    animation: none;
+  }
+  
+  .retryButton {
+    transition: none;
+  }
+}

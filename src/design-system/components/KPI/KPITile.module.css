@@ -1,0 +1,136 @@
+.kpi {
+  position: relative;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+}
+
+.label {
+  font: var(--body-xs) var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--ink-muted);
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+}
+
+.value {
+  font: var(--display-md) var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.unit {
+  font: var(--body-sm) var(--font-body);
+  color: var(--ink-muted);
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+  font: var(--body-sm) var(--font-body);
+}
+
+.trend.up {
+  color: var(--success);
+}
+
+.trend.down {
+  color: var(--danger);
+}
+
+.trend.neutral {
+  color: var(--ink-muted);
+}
+
+/* Size variants */
+.small {
+  min-height: 80px;
+}
+
+.medium {
+  min-height: 120px;
+}
+
+.large {
+  min-height: 160px;
+}
+
+/* Loading state */
+.loading {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.loading .skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+}
+
+.skeletonLabel,
+.skeletonValue {
+  background: var(--surface-lift);
+  border-radius: var(--radius-sm);
+  opacity: 0.3;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLabel {
+  height: 12px;
+  width: 60%;
+}
+
+.skeletonValue {
+  height: 24px;
+  width: 80%;
+  margin-top: var(--spacing-xs);
+}
+
+/* Error state */
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--danger);
+  background: var(--surface);
+  color: var(--danger);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeletonLabel,
+  .skeletonValue {
+    animation: none;
+  }
+}

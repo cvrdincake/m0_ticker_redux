@@ -2,15 +2,34 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/design-system/tokens/index.css'
+import { initMotion } from '@/lib/motionGuard'
+
+// SSR safety check
+const isBrowser = typeof window !== 'undefined';
+
+// Initialize motion guard system with SSR safety
+let motionSystem = null;
+if (isBrowser) {
+  motionSystem = initMotion({ context: 'dashboard' });
+}
 
 // Global error handlers for better debugging
-window.addEventListener('error', (event) => {
-  console.error('Global error:', event.error)
-})
+if (isBrowser) {
+  window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error)
+  })
 
-window.addEventListener('unhandledrejection', (event) => {
-  console.error('Unhandled promise rejection:', event.reason)
-})
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason)
+  })
+
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', () => {
+    if (motionSystem?.dispose) {
+      motionSystem.dispose();
+    }
+  });
+}
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {

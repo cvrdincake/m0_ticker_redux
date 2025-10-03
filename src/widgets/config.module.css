@@ -1,0 +1,306 @@
+.configContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.sectionTitle {
+  font: var(--body-lg) var(--font-body);
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Widget Type Selector */
+.widgetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.widgetOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  font-family: inherit;
+}
+
+.widgetOption:hover {
+  background: var(--surface-lift);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.widgetOption:focus {
+  outline: 2px solid var(--ink-muted);
+  outline-offset: 2px;
+}
+
+.widgetOptionActive {
+  background: var(--surface-lift);
+  border-color: var(--ink);
+  color: var(--ink);
+  box-shadow: var(--glow-sm);
+}
+
+.widgetOptionTitle {
+  font: var(--body-sm) var(--font-body);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.widgetOptionSize {
+  font: var(--display-xs) var(--font-display);
+  color: var(--ink-muted);
+}
+
+/* Main Content Layout */
+.configContent {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--spacing-xl);
+  min-height: 400px;
+}
+
+@media (max-width: 768px) {
+  .configContent {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+}
+
+/* Form Section */
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  flex: 1;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: var(--spacing-sm);
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.fieldLabel {
+  font: var(--body-sm) var(--font-body);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.fieldInput,
+.fieldTextarea {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: var(--body-md) var(--font-body);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.fieldInput:focus,
+.fieldTextarea:focus {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: var(--glow-sm);
+}
+
+.fieldError {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1) !important;
+}
+
+.fieldErrorMessage {
+  color: var(--danger);
+  font: var(--body-xs) var(--font-body);
+  margin-top: var(--spacing-xs);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  font: var(--body-sm) var(--font-body);
+  color: var(--ink);
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ink);
+}
+
+.noConfig {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--ink-muted);
+  font: var(--body-md) var(--font-body);
+  font-style: italic;
+  background: var(--surface-lift);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+/* Preview Section */
+.previewSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background: var(--surface-lift);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.previewContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  min-height: 150px;
+}
+
+.previewWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewWidget {
+  width: 100%;
+  height: 100%;
+  transform: scale(0.8);
+  transform-origin: center;
+}
+
+.widgetInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font: var(--body-xs) var(--font-body);
+}
+
+.infoLabel {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.infoItem span:last-child {
+  color: var(--ink-muted);
+  font: var(--display-xs) var(--font-display);
+}
+
+/* Quick Config */
+.quickConfig {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--surface-lift);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.quickConfigTitle {
+  font: var(--body-sm) var(--font-body);
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+}
+
+.quickConfigButtons {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+/* Scrollbar styling */
+.formFields::-webkit-scrollbar {
+  width: 6px;
+}
+
+.formFields::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+.formFields::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.formFields::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-muted);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .widgetOption {
+    transition: none;
+  }
+  
+  .widgetOption:hover {
+    transform: none;
+  }
+  
+  .fieldInput,
+  .fieldTextarea {
+    transition: none;
+  }
+}

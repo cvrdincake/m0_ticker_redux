@@ -28,5 +28,17 @@ module.exports = {
     'react/prop-types': 'off',
     'no-undef': 'warn',
     'no-unused-vars': 'warn',
+    // Prevent relative imports that navigate up directories - enforce path aliases usage
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['../*'],
+            message: 'Parent directory imports are not allowed. Use path aliases instead (e.g., @/design-system/...).',
+          },
+        ],
+      },
+    ],
   },
 }
