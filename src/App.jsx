@@ -1,8 +1,7 @@
-import StatusPage from '@/pages/StatusPage';
-import './App.css';
+import StatusPage from '@/pages/StatusPage.jsx';
 
-function App() {
-  return <StatusPage />;
+function App() { 
+  return <StatusPage />; 
 }
 
 export { App };
