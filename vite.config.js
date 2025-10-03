@@ -4,6 +4,22 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    host: true, // Listen on all addresses
+    port: 5173,
+    strictPort: true,
+    hmr: {
+      port: 5173
+    },
+    watch: {
+      usePolling: true // Better for containers
+    }
+  },
+  preview: {
+    host: true,
+    port: 5173,
+    strictPort: true
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

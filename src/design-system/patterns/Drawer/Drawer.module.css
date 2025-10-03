@@ -1,0 +1,361 @@
+/* Drawer.module.css */
+
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-drawer);
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--overlay);
+  pointer-events: auto;
+  animation: fadeIn var(--duration-normal) var(--easing-out);
+}
+
+.drawer {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* Position variants */
+.position-right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border-left: 1px solid var(--border);
+  border-right: none;
+  animation: slideInRight var(--duration-normal) var(--easing-out);
+}
+
+.position-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-right: 1px solid var(--border);
+  border-left: none;
+  animation: slideInLeft var(--duration-normal) var(--easing-out);
+}
+
+.position-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  border-bottom: 1px solid var(--border);
+  border-top: none;
+  animation: slideInDown var(--duration-normal) var(--easing-out);
+}
+
+.position-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+  animation: slideInUp var(--duration-normal) var(--easing-out);
+}
+
+/* Size variants */
+.size-small.position-left,
+.size-small.position-right {
+  width: 320px;
+}
+
+.size-medium.position-left,
+.size-medium.position-right {
+  width: 480px;
+}
+
+.size-large.position-left,
+.size-large.position-right {
+  width: 640px;
+}
+
+.size-full.position-left,
+.size-full.position-right {
+  width: 100vw;
+}
+
+.size-small.position-top,
+.size-small.position-bottom {
+  height: 240px;
+}
+
+.size-medium.position-top,
+.size-medium.position-bottom {
+  height: 360px;
+}
+
+.size-large.position-top,
+.size-large.position-bottom {
+  height: 480px;
+}
+
+.size-full.position-top,
+.size-full.position-bottom {
+  height: 100vh;
+}
+
+/* Variant styles */
+.variant-push {
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+
+.variant-overlay {
+  box-shadow: var(--shadow-2xl);
+}
+
+/* Content structure */
+.content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--ink);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  padding: var(--space-xs);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 
+    background-color var(--duration-fast) var(--easing-out),
+    color var(--duration-fast) var(--easing-out);
+}
+
+.closeButton:hover {
+  background-color: var(--surface-hovered);
+  color: var(--ink);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.body {
+  padding: var(--space-lg);
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion */
+.reducedMotion.overlay {
+  animation: none;
+}
+
+.reducedMotion.drawer {
+  animation: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .size-small.position-left,
+  .size-small.position-right,
+  .size-medium.position-left,
+  .size-medium.position-right,
+  .size-large.position-left,
+  .size-large.position-right {
+    width: calc(100vw - 32px);
+    max-width: 480px;
+  }
+  
+  .size-full.position-left,
+  .size-full.position-right {
+    width: 100vw;
+  }
+  
+  .header {
+    padding: var(--space-md);
+  }
+  
+  .body {
+    padding: var(--space-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .size-small.position-left,
+  .size-small.position-right,
+  .size-medium.position-left,
+  .size-medium.position-right,
+  .size-large.position-left,
+  .size-large.position-right {
+    width: 100vw;
+  }
+  
+  .position-left,
+  .position-right {
+    border-left: none;
+    border-right: none;
+  }
+}
+
+/* Focus management */
+.drawer:focus {
+  outline: none;
+}
+
+.drawer:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* Push variant positioning */
+.variant-push.position-right {
+  right: 0;
+}
+
+.variant-push.position-left {
+  left: 0;
+}
+
+.variant-push.position-top {
+  top: 0;
+}
+
+.variant-push.position-bottom {
+  bottom: 0;
+}
+
+/* Overlay click area */
+.overlay {
+  cursor: pointer;
+}
+
+.drawer {
+  cursor: default;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .drawer {
+    border: 2px solid var(--border);
+  }
+  
+  .header {
+    border-bottom: 2px solid var(--border);
+  }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .drawer {
+    box-shadow: 
+      0 20px 25px -5px rgba(0, 0, 0, 0.5),
+      0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .variant-overlay {
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.7),
+      0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Custom scrollbar for drawer body */
+.body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.body::-webkit-scrollbar-track {
+  background: var(--surface-raised);
+}
+
+.body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.body::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-muted);
+}

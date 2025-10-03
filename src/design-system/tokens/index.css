@@ -8,6 +8,10 @@
 @import './typography.css';
 @import './spacing.css';
 @import './motion.css';
+@import './background.css';
+@import './noise.css';
+@import './noise_.css';
+@import './reducedmotion.css';
 
 /* ---- GLOBAL RESETS ---- */
 *,

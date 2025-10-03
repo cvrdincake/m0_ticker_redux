@@ -1,0 +1,193 @@
+/* PopupAlert - Broadcast overlay pattern styles */
+
+/* Base alert container */
+.popupAlert {
+  /* Positioning - Top layer above grain/particles */
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 110; /* Above app content (z: 3) and grain (z: 1-2) */
+  
+  /* Layout */
+  max-width: 400px;
+  min-width: 280px;
+  
+  /* Elevated surface with E3/E4 gradient */
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.08) 0%, 
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  backdrop-filter: blur(8px);
+  
+  /* Borders & shadows using tokens */
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.24),
+    0 2px 8px rgba(0, 0, 0, 0.12);
+  
+  /* Pointer events - allow interaction */
+  pointer-events: auto;
+  
+  /* Typography */
+  font-family: var(--font-body);
+}
+
+/* Animation states - transform/opacity only, ≤240ms */
+.popupAlertEntering {
+  animation: popupEnter var(--duration-base) var(--ease-out) forwards;
+}
+
+.popupAlertExiting {
+  animation: popupExit var(--duration-base) var(--ease-out) forwards;
+}
+
+/* Keyframes for enter animation */
+@keyframes popupEnter {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Keyframes for exit animation */
+@keyframes popupExit {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+}
+
+/* Reduced motion - instant show/hide */
+@media (prefers-reduced-motion: reduce) {
+  .popupAlert {
+    animation: none !important;
+  }
+  
+  .popupAlertEntering {
+    animation: none;
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  
+  .popupAlertExiting {
+    animation: none;
+    opacity: 0;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Content container */
+.popupAlertContent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+}
+
+/* Icon container */
+.popupAlertIcon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--ink);
+  margin-top: 2px; /* Align with first line of text */
+}
+
+/* Text content container */
+.popupAlertText {
+  flex: 1;
+  min-width: 0; /* Allow text to wrap */
+}
+
+/* Alert title */
+.popupAlertTitle {
+  font: var(--body-md) var(--font-body);
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: var(--spacing-xs);
+  line-height: 1.4;
+}
+
+/* Alert message */
+.popupAlertMessage {
+  font: var(--body-sm) var(--font-body);
+  color: var(--ink-muted);
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+/* Dismiss button */
+.popupAlertDismiss {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  
+  /* Reset button styles */
+  background: none;
+  border: none;
+  cursor: pointer;
+  
+  /* Styling */
+  color: var(--ink-subtle);
+  border-radius: var(--radius-sm);
+  transition: all var(--duration-fast) var(--ease-out);
+  
+  /* Center the icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popupAlertDismiss:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.popupAlertDismiss:focus-visible {
+  outline: 2px solid var(--ink-muted);
+  outline-offset: 2px;
+}
+
+.popupAlertDismiss:active {
+  transform: scale(0.95);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .popupAlert {
+    top: 0.5rem;
+    right: 0.5rem;
+    left: 0.5rem;
+    max-width: none;
+  }
+  
+  .popupAlertContent {
+    padding: var(--spacing-md);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .popupAlert {
+    border-width: 2px;
+    background: var(--surface);
+    backdrop-filter: none;
+  }
+  
+  .popupAlertTitle {
+    color: var(--ink);
+  }
+  
+  .popupAlertMessage {
+    color: var(--ink);
+  }
+}

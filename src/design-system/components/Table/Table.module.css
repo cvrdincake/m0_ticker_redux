@@ -1,0 +1,124 @@
+/* Table component styles */
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font: var(--body-md);
+}
+
+.table--dense {
+  font: var(--body-sm);
+}
+
+.table--striped .tableBody .tableRow:nth-child(even) {
+  background: rgba(255,255,255,0.01);
+}
+
+.table--interactive .tableRow {
+  cursor: pointer;
+}
+
+/* Table sections */
+.tableHead {
+  background: var(--surface-lift);
+}
+
+.tableBody {
+  background: var(--surface);
+}
+
+/* Rows */
+.tableRow {
+  transition: background var(--duration-fast);
+}
+
+.tableRow--interactive:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.tableRow--interactive:focus-visible {
+  outline: 2px solid var(--ink-muted);
+  outline-offset: -2px;
+}
+
+/* Headers */
+.tableHeader {
+  font: var(--body-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-wide);
+  color: var(--ink-subtle);
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-lift);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table--dense .tableHeader {
+  padding: var(--space-2) var(--space-3);
+}
+
+.tableHeader--sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.tableHeader--sortable:hover {
+  background: var(--surface);
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sortIcon {
+  opacity: 0.5;
+  font-size: 12px;
+  transition: opacity var(--duration-fast);
+}
+
+.tableHeader--sortable:hover .sortIcon,
+.tableHeader--sorted-asc .sortIcon,
+.tableHeader--sorted-desc .sortIcon {
+  opacity: 1;
+}
+
+/* Cells */
+.tableCell {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.table--dense .tableCell {
+  padding: var(--space-2) var(--space-3);
+}
+
+.tableCell--left {
+  text-align: left;
+}
+
+.tableCell--center {
+  text-align: center;
+}
+
+.tableCell--right {
+  text-align: right;
+}
+
+/* Last row border */
+.tableBody .tableRow:last-child .tableCell {
+  border-bottom: none;
+}

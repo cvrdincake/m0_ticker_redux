@@ -1,5 +1,7 @@
-// components/Chart/MonochromeLineChart.jsx
+import { forwardRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useReducedMotion } from '@/hooks';
+import styles from './Chart.module.css';
 
 const CHART_THEME = {
   grid: { stroke: '#1a1a1a', strokeWidth: 1 },
@@ -30,31 +32,85 @@ const SERIES_STYLES = [
   { stroke: '#a3a3a3', strokeWidth: 1, fill: 'none', strokeDasharray: '6 3' }
 ];
 
-export function MonochromeLineChart({ data, series, height = 300 }) {
+/**
+ * Chart - Monochrome data visualization component
+ * @param {Array} data - Chart data array
+ * @param {string} title - Chart title
+ * @param {number} height - Chart height in pixels
+ * @param {boolean} loading - Loading state
+ * @param {string} error - Error message
+ * @param {string} dataKey - Key for x-axis data
+ * @param {string} valueKey - Key for y-axis data
+ */
+export const Chart = forwardRef(({
+  data = [],
+  title,
+  height = 300,
+  loading = false,
+  error,
+  dataKey = 'name',
+  valueKey = 'value',
+  className = '',
+  style = {},
+  ...props
+}, ref) => {
   const reducedMotion = useReducedMotion();
-  
+
+  const chartStyle = {
+    ...style,
+    ...(height && { height: `${height}px` })
+  };
+
+  if (loading) {
+    return (
+      <div ref={ref} className={`${styles.chart} ${className}`} style={chartStyle} {...props}>
+        {title && <div className={styles.chartTitle}>{title}</div>}
+        <div className={styles.chartContainer}>
+          <div className={styles.chartLoading}>Loading chart data...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div ref={ref} className={`${styles.chart} ${className}`} style={chartStyle} {...props}>
+        {title && <div className={styles.chartTitle}>{title}</div>}
+        <div className={styles.chartContainer}>
+          <div className={styles.chartError}>{error}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <LineChart data={data}>
-        <CartesianGrid {...CHART_THEME.grid} />
-        <XAxis 
-          dataKey="x" 
-          {...CHART_THEME.axis}
-        />
-        <YAxis {...CHART_THEME.axis} />
-        <Tooltip {...CHART_THEME.tooltip} />
-        
-        {series.slice(0, 5).map((s, i) => (
-          <Line
-            key={s.key}
-            type="monotone"
-            dataKey={s.key}
-            animationDuration={reducedMotion ? 0 : 600}
-            animationEasing="ease-out"
-            {...SERIES_STYLES[i % SERIES_STYLES.length]}
-          />
-        ))}
-      </LineChart>
-    </ResponsiveContainer>
+    <div ref={ref} className={`${styles.chart} ${className}`} style={chartStyle} {...props}>
+      {title && <div className={styles.chartTitle}>{title}</div>}
+      <div className={styles.chartContainer} data-testid="chart-container">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data}>
+            <CartesianGrid {...CHART_THEME.grid} />
+            <XAxis 
+              dataKey={dataKey}
+              {...CHART_THEME.axis}
+            />
+            <YAxis {...CHART_THEME.axis} />
+            <Tooltip {...CHART_THEME.tooltip} />
+            
+            <Line
+              type="monotone"
+              dataKey={valueKey}
+              animationDuration={reducedMotion ? 0 : 600}
+              animationEasing="ease-out"
+              {...SERIES_STYLES[0]}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
-}
+});
+
+Chart.displayName = 'Chart';
+
+export default Chart;

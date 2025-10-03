@@ -1,22 +1,33 @@
-// Pause on tab hide
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    gsap.globalTimeline.pause();
-    stopParticles();
-  } else {
-    gsap.globalTimeline.play();
-    startParticles();
+import { gsap } from 'gsap';
+
+// Export gsap for test mocking
+export { gsap };
+
+// Motion guard functionality - simplified for now
+const motionGuard = {
+  gsap,
+  init() {
+    // Pause on tab hide
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        gsap.globalTimeline.pause();
+        // stopParticles(); // TODO: Import particles system
+      } else {
+        gsap.globalTimeline.play();
+        // startParticles(); // TODO: Import particles system
+      }
+    });
+
+    // Reduced-motion support
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // disableParallax(); // TODO: Import parallax system
+      // setParticleOpacity(0.2); // TODO: Import particles system
+      const grain = document.querySelector('.grain');
+      if (grain) {
+        grain.style.opacity = '0.04';
+      }
+    }
   }
-});
+};
 
-// Degrade to 30fps if CPU >80%
-if (performance.now() - lastFrame > 50) {
-  createjs.Ticker.framerate = 30;
-}
-
-// Reduced-motion: static particles, no parallax
-if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  disableParallax();
-  setParticleOpacity(0.2);  // Static field at low alpha
-  document.querySelector('.grain').style.opacity = '0.04';
-}
+export default motionGuard;

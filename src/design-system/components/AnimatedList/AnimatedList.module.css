@@ -1,0 +1,141 @@
+/* AnimatedList.module.css */
+
+.animatedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.animatedList.direction-horizontal {
+  flex-direction: row;
+  align-items: center;
+}
+
+.listItem {
+  opacity: 0;
+  will-change: transform, opacity;
+  transform: translateY(-8px);
+}
+
+/* Animation variants */
+.animatedList:not(.reducedMotion) .listItem {
+  transition: 
+    opacity var(--duration-fast) var(--easing-out),
+    transform var(--duration-fast) var(--easing-out);
+}
+
+/* Reduced motion fallback */
+.reducedMotion .listItem {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Direction-specific spacing */
+.direction-horizontal {
+  gap: var(--space-sm);
+}
+
+.direction-horizontal .listItem {
+  flex-shrink: 0;
+}
+
+/* Animation states for GSAP */
+.listItem.animate-fade-up {
+  transform: translateY(-8px);
+}
+
+.listItem.animate-fade-down {
+  transform: translateY(8px);
+}
+
+.listItem.animate-fade-left {
+  transform: translateX(-8px);
+}
+
+.listItem.animate-fade-right {
+  transform: translateX(8px);
+}
+
+.listItem.animate-scale {
+  transform: scale(0.9);
+}
+
+.listItem.animate-slide-up {
+  transform: translateY(16px);
+}
+
+.listItem.animate-slide-down {
+  transform: translateY(-16px);
+}
+
+/* Performance optimizations */
+.animatedList {
+  contain: layout style;
+}
+
+.listItem {
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Focus states for accessibility */
+.listItem:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Hover effects for interactive lists */
+.animatedList.interactive .listItem {
+  cursor: pointer;
+  transition: 
+    opacity var(--duration-fast) var(--easing-out),
+    transform var(--duration-fast) var(--easing-out),
+    background-color var(--duration-fast) var(--easing-out);
+}
+
+.animatedList.interactive .listItem:hover {
+  background-color: var(--surface-raised);
+  transform: translateY(-1px);
+}
+
+.animatedList.interactive .listItem:active {
+  transform: translateY(0);
+}
+
+/* Spacing variants */
+.animatedList.spacing-tight {
+  gap: var(--space-2xs);
+}
+
+.animatedList.spacing-normal {
+  gap: var(--space-xs);
+}
+
+.animatedList.spacing-loose {
+  gap: var(--space-sm);
+}
+
+.animatedList.spacing-extra-loose {
+  gap: var(--space-md);
+}
+
+/* Size variants */
+.animatedList.size-sm .listItem {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.animatedList.size-md .listItem {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+}
+
+.animatedList.size-lg .listItem {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-lg);
+}

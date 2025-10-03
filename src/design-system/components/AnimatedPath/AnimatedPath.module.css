@@ -1,0 +1,46 @@
+/* AnimatedPath component styles */
+.path {
+  display: inline-block;
+  stroke: var(--ink);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke var(--duration-base) var(--ease-out);
+}
+
+.path--animated {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawPath var(--duration-slow) var(--ease-out) forwards;
+}
+
+.path--interactive:hover {
+  stroke: var(--ink-muted);
+  stroke-width: 3;
+}
+
+.path--dashed {
+  stroke-dasharray: 8 4;
+}
+
+.path--dotted {
+  stroke-dasharray: 2 2;
+}
+
+@keyframes drawPath {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .path--animated {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
