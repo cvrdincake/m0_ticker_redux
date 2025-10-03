@@ -1,0 +1,14 @@
+/* Colors - Monochrome Palette */
+:root {
+  --ink:             #ffffff;      /* Pure white text/icons */
+  --ink-muted:       #a3a3a3;      /* Secondary text */
+  --ink-subtle:      #737373;      /* Tertiary/disabled */
+  --surface:         #0a0a0a;      /* Primary background */
+  --surface-strong:  #000000;      /* Deepest black (modals/overlays) */
+  --surface-lift:    #1a1a1a;      /* Elevated cards/inputs */
+  --border:          #1a1a1a;      /* Default border */
+  --border-strong:   #242424;      /* Hover/focus border */
+  --divider:         #2e2e2e;      /* Horizontal rules */
+  --halo:            rgba(255,255,255,0.04); /* Glow inner */
+  --shadow:          rgba(0,0,0,0.3);        /* Elevation shadow */
+}

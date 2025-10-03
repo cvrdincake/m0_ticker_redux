@@ -1,0 +1,61 @@
+/* =============================================
+   M0 TICKER REDUX - Design Tokens
+   Import Order: Critical base styles first
+   ============================================= */
+
+@import './colors.css';
+@import './typography.css';
+@import './spacing.css';
+@import './effects.css';
+@import './motion.css';
+
+/* Global Reset & Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  line-height: var(--leading-normal);
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family-mono);
+  color: var(--ink);
+  background-color: var(--surface);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Focus Management */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: var(--ink-muted);
+    --border-strong: var(--ink);
+  }
+}

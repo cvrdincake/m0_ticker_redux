@@ -1,0 +1,59 @@
+/* src/pages/status.css */
+.page { 
+  padding: var(--space-16) var(--space-8); 
+  color: var(--ink); 
+  max-width: var(--content-lg);
+  margin: 0 auto;
+}
+
+.page__header { 
+  margin-bottom: var(--space-16); 
+  text-align: center;
+}
+
+.page__title { 
+  font-size: var(--text-3xl);
+  font-family: var(--font-family-mono);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-3);
+}
+
+.page__subtitle { 
+  font-size: var(--text-lg);
+  font-family: var(--font-family-mono);
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.meta { 
+  list-style: none; 
+  display: grid; 
+  gap: var(--space-4); 
+  padding: 0; 
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.meta li { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  border-bottom: 1px solid var(--border); 
+  padding-bottom: var(--space-3);
+  font-family: var(--font-family-mono);
+  font-size: var(--text-base);
+}
+
+.meta li span {
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.meta li strong {
+  color: var(--ink);
+  font-weight: 500;
+  text-align: right;
+  max-width: 200px;
+  word-break: break-all;
+}

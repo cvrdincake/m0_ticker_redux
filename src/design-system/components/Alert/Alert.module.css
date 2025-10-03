@@ -1,0 +1,138 @@
+.alert {
+  position: fixed;
+  z-index: var(--z-toast);
+  min-width: 300px;
+  max-width: 480px;
+  padding: var(--space-4);
+  background-color: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  
+  animation: alertSlideIn var(--duration-normal) var(--ease-out);
+}
+
+/* Positions */
+.top-right {
+  top: var(--space-6);
+  right: var(--space-6);
+}
+
+.top-left {
+  top: var(--space-6);
+  left: var(--space-6);
+}
+
+.bottom-right {
+  bottom: var(--space-6);
+  right: var(--space-6);
+}
+
+.bottom-left {
+  bottom: var(--space-6);
+  left: var(--space-6);
+}
+
+.top-center {
+  top: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottom-center {
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Variants */
+.info {
+  border-left: 4px solid var(--ink-muted);
+}
+
+.success {
+  border-left: 4px solid #10b981;
+}
+
+.warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.error {
+  border-left: 4px solid #ef4444;
+}
+
+/* Layout */
+.icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: var(--text-lg);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin-bottom: var(--space-1);
+}
+
+.message {
+  word-wrap: break-word;
+}
+
+.dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  font-size: var(--text-xl);
+  font-family: var(--font-family-mono);
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all var(--duration-fast) var(--ease-out);
+  
+  &:hover {
+    color: var(--ink);
+    background-color: var(--surface-lift);
+  }
+}
+
+/* Animations */
+@keyframes alertSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .alert {
+    animation: none;
+  }
+  
+  @keyframes alertSlideIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}

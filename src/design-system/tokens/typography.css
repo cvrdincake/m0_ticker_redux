@@ -1,0 +1,25 @@
+/* Typography Scale */
+:root {
+  --font-family-mono:  'Space Mono', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  --font-family-sans:  system-ui, -apple-system, 'Segoe UI', 'Roboto', sans-serif;
+  
+  /* Type Scale (1.25 ratio) */
+  --text-xs:   0.8rem;      /* 12.8px */
+  --text-sm:   0.9rem;      /* 14.4px */
+  --text-base: 1rem;        /* 16px */
+  --text-lg:   1.25rem;     /* 20px */
+  --text-xl:   1.563rem;    /* 25px */
+  --text-2xl:  1.953rem;    /* 31.25px */
+  --text-3xl:  2.441rem;    /* 39px */
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  
+  /* Letter Spacing */
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+}

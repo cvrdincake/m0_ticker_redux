@@ -1,0 +1,35 @@
+/* Border Radius */
+:root {
+  --radius-none: 0;
+  --radius-sm:   2px;
+  --radius-base: 4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+  --radius-full: 9999px;
+}
+
+/* Shadows */
+:root {
+  --shadow-sm:  0 1px 2px 0 var(--shadow);
+  --shadow-base: 0 1px 3px 0 var(--shadow), 0 1px 2px -1px var(--shadow);
+  --shadow-md:  0 4px 6px -1px var(--shadow), 0 2px 4px -2px var(--shadow);
+  --shadow-lg:  0 10px 15px -3px var(--shadow), 0 4px 6px -4px var(--shadow);
+  --shadow-xl:  0 20px 25px -5px var(--shadow), 0 8px 10px -6px var(--shadow);
+  --shadow-2xl: 0 25px 50px -12px var(--shadow);
+  --shadow-inner: inset 0 2px 4px 0 var(--shadow);
+}
+
+/* Z-Index Scale */
+:root {
+  --z-base:     0;
+  --z-docked:   10;
+  --z-dropdown: 1000;
+  --z-sticky:   1020;
+  --z-banner:   1030;
+  --z-overlay:  1040;
+  --z-modal:    1050;
+  --z-popover:  1060;
+  --z-tooltip:  1070;
+  --z-toast:    1080;
+}
