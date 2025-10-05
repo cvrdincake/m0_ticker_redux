@@ -1,4 +1,7 @@
-import { useDashboard } from '@/store/useDashboard';
+// Use the JavaScript dashboard store for widget state
+import { useDashboardStore } from '@/store/useDashboard';
+// Import the TypeScript dashboard store to access highContrast and safeMode toggles
+import useDashboard from '@/store/useDashboard';
 import { Button, Input, Text } from '@/design-system';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useState, useEffect } from 'react';
@@ -32,25 +35,40 @@ export const InspectorPanel = ({
   className,
   ...props 
 }: InspectorPanelProps) => {
-  const { 
-    selectedWidgetId,
-    getSelectedWidget,
-    updateWidget
-  } = useDashboardStore();
+  // Pull state and actions from the dashboard store. The JS store keeps widgets in an object keyed by id.
+  const { selectedWidgetId, widgets, updateWidget } = useDashboardStore();
   
-  const selectedWidget = getSelectedWidget();
-  const [localConfig, setLocalConfig] = useState({
+  // Resolve the currently selected widget from the store. If none is selected, this will be undefined.
+  const selectedWidget = selectedWidgetId ? widgets[selectedWidgetId] : undefined;
+
+  // Pull global accessibility settings and toggles from the TypeScript store.  These control
+  // high contrast mode and safe mode across the entire application.  We expose
+  // functions to toggle these settings from within the inspector UI.
+  const { highContrast, safeMode, toggleHighContrast, toggleSafeMode } = useDashboard();
+
+  // Local state mirrors the selected widget's config for editing in the inspector. When the selected widget changes,
+  // we reset this state accordingly in a separate effect.
+  const [localConfig, setLocalConfig] = useState(() => ({
     title: selectedWidget?.title || '',
     dataSource: selectedWidget?.config?.dataSource || '',
     motionPreset: selectedWidget?.config?.motionPreset || 'card',
     density: selectedWidget?.config?.density || 'comfortable',
-    ariaLabel: selectedWidget?.config?.ariaLabel || ''
-  });
+    ariaLabel: selectedWidget?.config?.ariaLabel || '',
+    // LowerThird specific defaults
+    showTicker: (selectedWidget?.config as any)?.showTicker ?? false,
+    tickerText: (selectedWidget?.config as any)?.tickerText || '',
+    speed: (selectedWidget?.config as any)?.speed ?? 60,
+    direction: (selectedWidget?.config as any)?.direction || 'left',
+    pauseOnHover: (selectedWidget?.config as any)?.pauseOnHover ?? true,
+  }));
   
-  // Debounced updates for live preview (200ms as specified)
+  // Debounced updates for live preview (200ms as specified). Whenever any field in localConfig
+  // changes, we wait a short period before persisting it back into the store. This avoids rapid
+  // writes on every keystroke.
   const debouncedConfig = useDebounce(localConfig, 200);
   
-  // Apply debounced changes to store
+  // Apply debounced changes to the underlying widget in the dashboard store. If no widget is
+  // selected, nothing happens.
   useEffect(() => {
     if (!selectedWidget || !selectedWidgetId) return;
     
@@ -61,12 +79,19 @@ export const InspectorPanel = ({
         dataSource: debouncedConfig.dataSource,
         motionPreset: debouncedConfig.motionPreset,
         density: debouncedConfig.density,
-        ariaLabel: debouncedConfig.ariaLabel
+        ariaLabel: debouncedConfig.ariaLabel,
+        // Persist ticker-related properties if they exist on the widget. Other widgets will ignore them.
+        showTicker: debouncedConfig.showTicker,
+        tickerText: debouncedConfig.tickerText,
+        speed: debouncedConfig.speed,
+        direction: debouncedConfig.direction,
+        pauseOnHover: debouncedConfig.pauseOnHover
       }
     });
   }, [debouncedConfig, selectedWidget, selectedWidgetId, updateWidget]);
   
-  // Update local state when selected widget changes
+  // Reset localConfig whenever the selected widget changes so the inspector reflects the current
+  // widget's properties. Include the ticker fields to allow editing for LowerThird widgets.
   useEffect(() => {
     if (selectedWidget) {
       setLocalConfig({
@@ -74,7 +99,12 @@ export const InspectorPanel = ({
         dataSource: selectedWidget.config?.dataSource || '',
         motionPreset: selectedWidget.config?.motionPreset || 'card',
         density: selectedWidget.config?.density || 'comfortable',
-        ariaLabel: selectedWidget.config?.ariaLabel || ''
+        ariaLabel: selectedWidget.config?.ariaLabel || '',
+        showTicker: (selectedWidget.config as any)?.showTicker ?? false,
+        tickerText: (selectedWidget.config as any)?.tickerText || '',
+        speed: (selectedWidget.config as any)?.speed ?? 60,
+        direction: (selectedWidget.config as any)?.direction || 'left',
+        pauseOnHover: (selectedWidget.config as any)?.pauseOnHover ?? true
       });
     }
   }, [selectedWidget]);
@@ -207,6 +237,81 @@ export const InspectorPanel = ({
               size="sm"
             />
           </div>
+
+        {/* Ticker configuration fields for LowerThird widgets */}
+        {selectedWidget?.type === 'lowerThird' && (
+          <>
+            <div className={styles.field}>
+              <Text as="h4" size="xs" weight="medium" className={styles.sectionTitle}>
+                Ticker Settings
+              </Text>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="ticker-enabled" className={styles.label}>
+                <Text size="sm" color="secondary">Show Ticker</Text>
+              </label>
+              <input
+                id="ticker-enabled"
+                type="checkbox"
+                checked={localConfig.showTicker}
+                onChange={(e) => handleConfigChange('showTicker', e.target.checked)}
+              />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="ticker-text" className={styles.label}>
+                <Text size="sm" color="secondary">Ticker Text</Text>
+              </label>
+              <Input
+                id="ticker-text"
+                type="text"
+                value={localConfig.tickerText}
+                onChange={(e) => handleConfigChange('tickerText', e.target.value)}
+                placeholder="Headline or message"
+                size="sm"
+              />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="ticker-speed" className={styles.label}>
+                <Text size="sm" color="secondary">Ticker Speed (px/s)</Text>
+              </label>
+              <Input
+                id="ticker-speed"
+                type="number"
+                value={localConfig.speed}
+                min={10}
+                max={500}
+                step={10}
+                onChange={(e) => handleConfigChange('speed', Number(e.target.value))}
+                size="sm"
+              />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="ticker-direction" className={styles.label}>
+                <Text size="sm" color="secondary">Direction</Text>
+              </label>
+              <select
+                id="ticker-direction"
+                value={localConfig.direction}
+                onChange={(e) => handleConfigChange('direction', e.target.value)}
+                className={styles.select}
+              >
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="ticker-pause" className={styles.label}>
+                <Text size="sm" color="secondary">Pause on Hover</Text>
+              </label>
+              <input
+                id="ticker-pause"
+                type="checkbox"
+                checked={localConfig.pauseOnHover}
+                onChange={(e) => handleConfigChange('pauseOnHover', e.target.checked)}
+              />
+            </div>
+          </>
+        )}
         </div>
         
         <div className={styles.section}>
@@ -237,6 +342,35 @@ export const InspectorPanel = ({
                 {selectedWidget.id.slice(0, 8)}...
               </Text>
             </div>
+          </div>
+        </div>
+
+        {/* Display preferences section: high contrast and safe mode toggles */}
+        <div className={styles.section}>
+          <Text as="h3" size="sm" weight="medium" className={styles.sectionTitle}>
+            Display Preferences
+          </Text>
+          <div className={styles.field}>
+            <label htmlFor="toggle-high-contrast" className={styles.label}>
+              <Text size="sm" color="secondary">High Contrast Mode</Text>
+            </label>
+            <input
+              id="toggle-high-contrast"
+              type="checkbox"
+              checked={highContrast}
+              onChange={() => toggleHighContrast()}
+            />
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="toggle-safe-mode" className={styles.label}>
+              <Text size="sm" color="secondary">Safe Mode (reduce motion)</Text>
+            </label>
+            <input
+              id="toggle-safe-mode"
+              type="checkbox"
+              checked={safeMode}
+              onChange={() => toggleSafeMode()}
+            />
           </div>
         </div>
       </div>
