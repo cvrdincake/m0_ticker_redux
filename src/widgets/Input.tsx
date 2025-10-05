@@ -7,52 +7,123 @@ interface InputWidgetProps {
 }
 
 /**
- * Accessible form input widget.
- *
- * This component renders a labelled input field based on the provided
- * configuration. It supports different input types (text, email,
- * password, number) and marks the input as required when specified.
- * The component maintains its own value state and invokes
- * `onConfigChange` when the value changes so that external state can
- * persist user input if desired. Appropriate ARIA attributes are
- * applied to ensure screen readers announce the input correctly.
+ * Accessible form input widget with validation and multi-line support.
  */
 export default function InputWidget({ config, onConfigChange }: InputWidgetProps) {
-  const { label = 'Input', placeholder = 'Enter text...', type = 'text', required = false, ariaLabel } = config;
-  const [value, setValue] = useState<string>('');
+  const {
+    id,
+    label = 'Input',
+    placeholder = 'Enter text...',
+    type = 'text',
+    required = false,
+    ariaLabel,
+    multiLine = false,
+    pattern,
+    minLength,
+    maxLength,
+  } = config as any;
 
-  // Notify parent of value changes by merging into config.  We include
-  // value in the config object so dashboards can persist form state.
+  const [value, setValue] = useState<string>((config as any).value || '');
+  const [error, setError] = useState<string>('');
+
+  const validate = (val: string) => {
+    // Required
+    if (required && !val.trim()) {
+      return 'This field is required.';
+    }
+    // Type-specific
+    if (type === 'email' && val) {
+      const re = /\S+@\S+\.\S+/;
+      if (!re.test(val)) return 'Please enter a valid email address.';
+    }
+    if (type === 'number' && val) {
+      if (Number.isNaN(Number(val))) return 'Please enter a valid number.';
+    }
+    // Pattern
+    if (pattern && val) {
+      let re: RegExp | null = null;
+      try {
+        re = new RegExp(pattern);
+      } catch {
+        // Ignore invalid patterns in config
+      }
+      if (re && !re.test(val)) return 'Value does not match the required format.';
+    }
+    // Length constraints
+    if (minLength != null && val.length < minLength) {
+      return `Please enter at least ${minLength} characters.`;
+    }
+    if (maxLength != null && val.length > maxLength) {
+      return `Please enter no more than ${maxLength} characters.`;
+    }
+    return '';
+  };
+
   useEffect(() => {
+    // Validate whenever value changes
+    const msg = validate(value);
+    setError(msg);
+    // Propagate value to parent config if needed
     if (onConfigChange) {
       onConfigChange({ ...config, value } as InputConfig);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
+
+  const commonProps = {
+    id: `input-${id || label.replace(/\s+/g, '-').toLowerCase()}`,
+    value,
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setValue(e.target.value),
+    placeholder,
+    'aria-label': ariaLabel || label,
+    'aria-required': required || undefined,
+    'aria-invalid': !!error || undefined,
+    style: {
+      padding: '0.5rem',
+      border: `1px solid ${error ? 'var(--error)' : 'var(--border)'}`,
+      borderRadius: 'var(--radius-base)',
+      fontSize: 'var(--text-sm)',
+      color: 'var(--ink)',
+      backgroundColor: 'var(--surface)',
+      outline: 'none'
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <label htmlFor={`input-${config.id}`} style={{ marginBottom: '0.25rem', fontSize: 'var(--text-sm)', color: 'var(--ink-muted)' }}>
+      <label
+        htmlFor={commonProps.id}
+        style={{ marginBottom: '0.25rem', fontSize: 'var(--text-sm)', color: 'var(--ink-muted)' }}
+      >
         {label}
         {required && <span aria-hidden="true" style={{ marginLeft: '0.25rem', color: 'var(--error)' }}>*</span>}
       </label>
-      <input
-        id={`input-${config.id}`}
-        type={type}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        aria-label={ariaLabel || label}
-        aria-required={required}
-        style={{
-          padding: '0.5rem',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-base)',
-          fontSize: 'var(--text-sm)',
-          color: 'var(--ink)',
-          backgroundColor: 'var(--surface)'
-        }}
-      />
+
+      {multiLine ? (
+        <textarea
+          {...(commonProps as any)}
+          rows={Math.max(3, Math.min(12, Math.floor((value?.length || 0) / 80) + 3))}
+        />
+      ) : (
+        <input
+          {...(commonProps as any)}
+          type={type}
+          minLength={minLength}
+          maxLength={maxLength}
+          required={required}
+        />
+      )}
+
+      {/* Inline error */}
+      {error && (
+        <div
+          role="alert"
+          style={{ marginTop: '0.25rem', color: 'var(--error)', fontSize: 'var(--text-xs)' }}
+          id={`${commonProps.id}-error`}
+        >
+          {error}
+        </div>
+      )}
     </div>
   );
 }
