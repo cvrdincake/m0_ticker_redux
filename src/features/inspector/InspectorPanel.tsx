@@ -3,11 +3,12 @@ import { Button, Input, Text } from '@/design-system';
 import { cn } from '@/lib/utils';
 import styles from './InspectorPanel.module.css';
 
-// Widget + dashboard state
+// Dashboard state
 import { useDashboardStore } from '@/store/useDashboard';
-import useDashboard from '@/store/useDashboard'; // TS store (high contrast / safe mode)
+// Global toggles (same store, used for selector-based access)
+import useDashboard from '@/store/useDashboard';
 
-// Debounce util for smooth live updates
+// Debounce util
 import { useDebounce } from '@/hooks/useDebounce';
 
 interface InspectorPanelProps {
@@ -40,14 +41,13 @@ export const InspectorPanel = ({
   const { selectedWidgetId, widgets, updateWidget } = useDashboardStore();
   const selectedWidget = selectedWidgetId ? widgets[selectedWidgetId] : undefined;
 
-  const { highContrast, safeMode, toggleHighContrast, toggleSafeMode } = useDashboard();
+  const { highContrast, safeMode, toggleHighContrast, toggleSafeMode, screenReaderMode, toggleScreenReaderMode } =
+    useDashboard();
 
-  // detect types for conditional sections
   const isTable = selectedWidget?.type === 'table';
   const isLowerThird = selectedWidget?.type === 'lowerThird';
   const isBRB = selectedWidget?.type === 'brb-screen';
 
-  // Resolve table columns as strings
   const tableColumns: string[] = useMemo(() => {
     if (!isTable) return [];
     const raw = (selectedWidget?.config as any)?.columns ?? [];
@@ -80,7 +80,7 @@ export const InspectorPanel = ({
     primaryColor: (selectedWidget?.config as any)?.primaryColor || '',
     secondaryColor: (selectedWidget?.config as any)?.secondaryColor || '',
 
-    // BRB screen
+    // BRB
     message: (selectedWidget?.config as any)?.message || '',
     subMessage: (selectedWidget?.config as any)?.subMessage || '',
     countdown: (selectedWidget?.config as any)?.countdown ?? undefined,
@@ -89,7 +89,6 @@ export const InspectorPanel = ({
 
   const debounced = useDebounce(localConfig, 200);
 
-  // Persist debounced config to store
   useEffect(() => {
     if (!selectedWidget || !selectedWidgetId) return;
     updateWidget(selectedWidgetId, {
@@ -119,7 +118,7 @@ export const InspectorPanel = ({
         primaryColor: debounced.primaryColor,
         secondaryColor: debounced.secondaryColor,
 
-        // BRB screen
+        // BRB
         message: debounced.message,
         subMessage: debounced.subMessage,
         countdown: debounced.countdown,
@@ -128,7 +127,6 @@ export const InspectorPanel = ({
     });
   }, [debounced, selectedWidget, selectedWidgetId, updateWidget]);
 
-  // Reset when selection changes
   useEffect(() => {
     if (!selectedWidget) return;
     setLocalConfig({
@@ -155,7 +153,7 @@ export const InspectorPanel = ({
       primaryColor: (selectedWidget.config as any)?.primaryColor || '',
       secondaryColor: (selectedWidget.config as any)?.secondaryColor || '',
 
-      // BRB screen
+      // BRB
       message: (selectedWidget.config as any)?.message || '',
       subMessage: (selectedWidget.config as any)?.subMessage || '',
       countdown: (selectedWidget.config as any)?.countdown ?? undefined,
@@ -415,6 +413,10 @@ export const InspectorPanel = ({
             <div className={styles.field}>
               <label htmlFor="toggle-safe" className={styles.label}><Text size="sm" color="secondary">Safe Mode (reduce motion)</Text></label>
               <input id="toggle-safe" type="checkbox" checked={!!safeMode} onChange={() => toggleSafeMode()} />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="toggle-sr" className={styles.label}><Text size="sm" color="secondary">Screen-reader Mode</Text></label>
+              <input id="toggle-sr" type="checkbox" checked={!!screenReaderMode} onChange={() => toggleScreenReaderMode()} />
             </div>
           </div>
         </details>
