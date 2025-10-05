@@ -310,4 +310,46 @@ html.hc .lower-third-pattern {
 .content-accent {
   background: hsl(0, 0%, 95%);
 }
-`;
+ return (
+     <div
+       ref={containerRef}
+       className="widget-lower-third"
+       role="banner"
+       aria-label={config.ariaLabel || `${config.primaryText} - ${config.secondaryText}`}
+     >
+       <div className="lower-third-content">
+-        <span className="primary-text">{config.primaryText}</span>
+-        <span className="secondary-text">{config.secondaryText}</span>
++        <span
++          className="primary-text"
++          style={{
++            ...(config.primarySize ? { fontSize: config.primarySize } : null),
++            ...(config.primaryColor ? { color: config.primaryColor } : null),
++          }}
++        >
++          {config.primaryText}
++        </span>
++        <span
++          className="secondary-text"
++          style={{
++            ...(config.secondarySize ? { fontSize: config.secondarySize } : null),
++            ...(config.secondaryColor ? { color: config.secondaryColor } : null),
++          }}
++        >
++          {config.secondaryText}
++        </span>
+       </div>
+
+       {config.showTicker && config.tickerText && (
+         <div
+           ref={tickerContainerRef}
+           className="lower-third-ticker"
+         >
+           <div ref={tickerContentRef} className="lower-third-ticker__content">
+             {config.tickerText}
+           </div>
+         </div>
+       )}
+     </div>
+   );
+ }
