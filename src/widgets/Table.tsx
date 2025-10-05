@@ -8,18 +8,19 @@ interface TableProps {
 }
 
 /**
- * Accessible data table widget with dynamic data, sorting, filtering, and pagination.
- *
- * Data resolution order:
- *   1) If config.dataSource is provided, use globalData[dataSource]
- *   2) Else use config.data / config.rows
- *
- * Columns can be an array of strings (keys) or objects { key, label, sortable }.
- * Sorting uses config.columnTypes to decide numeric vs alphabetical compare.
- * Filter is case-insensitive across visible columns.
+ * Accessible data table widget with dynamic data, sorting, filtering, and optional pagination.
  */
 export default function Table({ config }: TableProps) {
-  const { columns = [], pageSize = 10, filter, dataSource, columnOrder, columnTypes = {}, pagination = false } = config;
+  const {
+    columns = [],
+    pageSize = 10,
+    filter,
+    dataSource,
+    columnOrder,
+    columnTypes = {},
+    pagination = false,
+    ariaLabel,
+  } = config;
 
   // Pull global data map from the store
   const { globalData = {} as Record<string, any[]> } = useDashboardStore.getState() as any;
@@ -60,14 +61,12 @@ export default function Table({ config }: TableProps) {
         const an = Number(aVal);
         const bn = Number(bVal);
         if (Number.isNaN(an) || Number.isNaN(bn)) {
-          // Fallback to string compare for non-numeric values
           return sortAsc
             ? String(aVal).localeCompare(String(bVal))
             : String(bVal).localeCompare(String(aVal));
         }
         return sortAsc ? an - bn : bn - an;
       }
-      // string
       return sortAsc
         ? String(aVal).localeCompare(String(bVal))
         : String(bVal).localeCompare(String(aVal));
@@ -111,7 +110,7 @@ export default function Table({ config }: TableProps) {
     return (
       <div
         role="region"
-        aria-label={config.ariaLabel || 'Empty data table'}
+        aria-label={ariaLabel || 'Empty data table'}
         style={{ padding: '1rem', background: 'var(--surface)', color: 'var(--ink)' }}
       >
         <p>No data available for this table.</p>
@@ -120,7 +119,7 @@ export default function Table({ config }: TableProps) {
   }
 
   return (
-    <div role="region" aria-label={config.ariaLabel || 'Data table'}>
+    <div role="region" aria-label={ariaLabel || 'Data table'}>
       <table role="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
