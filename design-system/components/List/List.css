@@ -1,0 +1,36 @@
+/* List Component Styles */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-base);
+}
+
+.list-item {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item:hover {
+  background-color: var(--surface-lift);
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+  margin: 0 calc(-1 * var(--space-2));
+  border-radius: var(--radius-base);
+}
+
+/* Reduced motion override */
+@media (prefers-reduced-motion: reduce) {
+  .list-item {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
