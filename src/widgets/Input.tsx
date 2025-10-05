@@ -27,11 +27,7 @@ export default function InputWidget({ config, onConfigChange }: InputWidgetProps
   const [error, setError] = useState<string>('');
 
   const validate = (val: string) => {
-    // Required
-    if (required && !val.trim()) {
-      return 'This field is required.';
-    }
-    // Type-specific
+    if (required && !val.trim()) return 'This field is required.';
     if (type === 'email' && val) {
       const re = /\S+@\S+\.\S+/;
       if (!re.test(val)) return 'Please enter a valid email address.';
@@ -39,17 +35,13 @@ export default function InputWidget({ config, onConfigChange }: InputWidgetProps
     if (type === 'number' && val) {
       if (Number.isNaN(Number(val))) return 'Please enter a valid number.';
     }
-    // Pattern
     if (pattern && val) {
       let re: RegExp | null = null;
       try {
         re = new RegExp(pattern);
-      } catch {
-        // Ignore invalid patterns in config
-      }
+      } catch { /* ignore invalid patterns */ }
       if (re && !re.test(val)) return 'Value does not match the required format.';
     }
-    // Length constraints
     if (minLength != null && val.length < minLength) {
       return `Please enter at least ${minLength} characters.`;
     }
@@ -60,10 +52,8 @@ export default function InputWidget({ config, onConfigChange }: InputWidgetProps
   };
 
   useEffect(() => {
-    // Validate whenever value changes
     const msg = validate(value);
     setError(msg);
-    // Propagate value to parent config if needed
     if (onConfigChange) {
       onConfigChange({ ...config, value } as InputConfig);
     }
@@ -114,7 +104,6 @@ export default function InputWidget({ config, onConfigChange }: InputWidgetProps
         />
       )}
 
-      {/* Inline error */}
       {error && (
         <div
           role="alert"
