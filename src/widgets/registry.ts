@@ -1,94 +1,119 @@
+import { lazy } from 'react';
 import { z } from 'zod';
-import { ComponentType, LazyExoticComponent, lazy } from 'react';
 
-// Widget Configuration Schemas
+/**
+ * Base schema used by all widget configs.
+ */
 export const BaseWidgetConfigSchema = z.object({
-  id: z.string(),
-  title: z.string().default('Untitled Widget'),
-  ariaLabel: z.string().optional(),
+  title: z.string().default(''),
+  dataSource: z.string().default(''),
+  motionPreset: z.enum(['card', 'kpi', 'chart', 'table', 'toast', 'modal']).default('card'),
+  density: z.enum(['comfortable', 'compact', 'relaxed']).default('comfortable'),
+  ariaLabel: z.string().default(''),
 });
 
+// ----------------------------
+// Core widget config schemas
+// ----------------------------
 export const CardConfigSchema = BaseWidgetConfigSchema.extend({
-  content: z.string().default('Card content'),
-  variant: z.enum(['default', 'outlined', 'elevated']).default('default'),
+  body: z.string().default('This is a card')
 });
 
 export const ButtonConfigSchema = BaseWidgetConfigSchema.extend({
-  label: z.string().default('Button'),
-  variant: z.enum(['primary', 'secondary', 'ghost']).default('primary'),
-  size: z.enum(['sm', 'md', 'lg']).default('md'),
-  disabled: z.boolean().default(false),
+  label: z.string().default('Click me'),
 });
 
+// Configuration for the input widget.  Besides the base properties, inputs
+// may be rendered as multi-line, validated against a regex pattern and
+// constrained in length.  These fields also enable better error messaging.
 export const InputConfigSchema = BaseWidgetConfigSchema.extend({
   label: z.string().default('Input'),
   placeholder: z.string().default('Enter text...'),
   type: z.enum(['text', 'email', 'password', 'number']).default('text'),
   required: z.boolean().default(false),
+  // NEW
+  multiLine: z.boolean().default(false),
+  pattern: z.string().optional(),
+  minLength: z.number().int().nonnegative().optional(),
+  maxLength: z.number().int().positive().optional(),
 });
 
 export const TableConfigSchema = BaseWidgetConfigSchema.extend({
-  columns: z.array(z.object({
-    key: z.string(),
-    label: z.string(),
-    sortable: z.boolean().default(false),
-  })).default([]),
-  data: z.array(z.record(z.unknown())).default([]),
-  density: z.enum(['default', 'dense']).default('default'),
+  columns: z.array(z.union([
+    z.string(),
+    z.object({
+      key: z.string(),
+      label: z.string().optional(),
+      sortable: z.boolean().optional()
+    })
+  ])).default([]),
+  dataSource: z.string().default(''),
+  pageSize: z.number().int().positive().default(10),
   pagination: z.boolean().default(false),
+  /** Optional filter text applied to rows. */
+  filter: z.string().optional(),
+  /** Optional explicit column order */
+  columnOrder: z.array(z.string()).default([]),
+  /** Column types used to pick numeric vs string sort */
+  columnTypes: z.record(z.enum(['string', 'number'])).default({})
 });
 
 export const KPIConfigSchema = BaseWidgetConfigSchema.extend({
   value: z.string().default('0'),
-  label: z.string().default('Metric'),
-  trend: z.enum(['up', 'down', 'neutral']).optional(),
-  trendValue: z.string().optional(),
-  format: z.enum(['number', 'currency', 'percentage']).default('number'),
+  trend: z.enum(['up', 'down', 'flat']).default('flat'),
 });
 
 export const AnimatedListConfigSchema = BaseWidgetConfigSchema.extend({
   items: z.array(z.string()).default([]),
-  staggerDelay: z.number().min(0).max(100).default(50),
-  maxStagger: z.number().min(1).max(10).default(5),
 });
 
 export const ChartConfigSchema = BaseWidgetConfigSchema.extend({
-  data: z.array(z.object({
-    x: z.union([z.string(), z.number()]),
-    y: z.number(),
-  })).default([]),
-  xLabel: z.string().default('X Axis'),
-  yLabel: z.string().default('Y Axis'),
-  showGrid: z.boolean().default(true),
-  showDots: z.boolean().default(false),
+  series: z.array(z.any()).default([]),
 });
 
 export const ToastConfigSchema = BaseWidgetConfigSchema.extend({
-  message: z.string().default('Toast message'),
+  message: z.string().default('Hello'),
   type: z.enum(['info', 'success', 'warning', 'error']).default('info'),
-  duration: z.number().min(1000).max(10000).default(4000),
-  closable: z.boolean().default(true),
+  duration: z.number().int().positive().default(3000),
 });
 
 export const PopupAlertConfigSchema = BaseWidgetConfigSchema.extend({
-  message: z.string().default('Alert message'),
-  type: z.enum(['info', 'success', 'warning', 'error']).default('info'),
+  message: z.string().default('Are you sure?'),
+  type: z.enum(['info', 'warning', 'error']).default('info'),
   actions: z.array(z.object({
     label: z.string(),
-    action: z.string(),
-    variant: z.enum(['primary', 'secondary']).default('secondary'),
-  })).default([]),
+    action: z.enum(['dismiss', 'confirm', 'custom']).default('dismiss'),
+    event: z.string().optional()
+  })).default([])
 });
 
 export const LowerThirdConfigSchema = BaseWidgetConfigSchema.extend({
   primaryText: z.string().default('Primary Text'),
   secondaryText: z.string().default('Secondary Text'),
   tickerText: z.string().optional(),
-  speed: z.number().min(10).max(200).default(60),
+  speed: z.number().min(10).max(500).default(60),
   showTicker: z.boolean().default(false),
+  // NEW
+  direction: z.enum(['left', 'right']).default('left'),
+  pauseOnHover: z.boolean().default(true),
 });
 
-// Widget Configuration Types
+// BRB Screen configuration. This full-screen overlay covers the
+// entire canvas and displays a message indicating that the stream will
+// return shortly. An optional countdown timer can be provided in
+// seconds to show how long until the broadcast resumes.
+export const BrbScreenConfigSchema = BaseWidgetConfigSchema.extend({
+  message: z.string().default('Be Right Back'),
+  subMessage: z.string().default('We will return shortly'),
+  countdown: z.number().optional(),
+  image: z.string().optional(),
+  motionPreset: z.enum(['modal', 'drawer', 'card']).default('modal'),
+  density: z.enum(['comfortable', 'compact', 'relaxed']).default('comfortable'),
+});
+
+// ----------------------------
+// Types inferred from schemas
+// ----------------------------
 export type BaseWidgetConfig = z.infer<typeof BaseWidgetConfigSchema>;
 export type CardConfig = z.infer<typeof CardConfigSchema>;
 export type ButtonConfig = z.infer<typeof ButtonConfigSchema>;
@@ -100,239 +125,8 @@ export type ChartConfig = z.infer<typeof ChartConfigSchema>;
 export type ToastConfig = z.infer<typeof ToastConfigSchema>;
 export type PopupAlertConfig = z.infer<typeof PopupAlertConfigSchema>;
 export type LowerThirdConfig = z.infer<typeof LowerThirdConfigSchema>;
-
-export type WidgetConfig = 
-  | CardConfig 
-  | ButtonConfig 
-  | InputConfig 
-  | TableConfig 
-  | KPIConfig 
-  | AnimatedListConfig 
-  | ChartConfig 
-  | ToastConfig 
-  | PopupAlertConfig 
-  | LowerThirdConfig;
-
-// Widget Kinds
-export type WidgetKind = 
-  | 'card' 
-  | 'button' 
-  | 'input' 
-  | 'table' 
-  | 'kpi' 
-  | 'animated-list' 
-  | 'chart' 
-  | 'toast' 
-  | 'popup-alert' 
-  | 'lower-third';
-
-// Motion Roles for useWidgetMotion hook
-export type MotionRole = 
-  | 'card' 
-  | 'table' 
-  | 'chart' 
-  | 'toast' 
-  | 'modal' 
-  | 'drawer' 
-  | 'loader' 
-  | 'skeleton' 
-  | 'progress' 
-  | 'tabs' 
-  | 'accordion' 
-  | 'banner' 
-  | 'kpi';
-
-// Widget Specification
-export interface WidgetSpec<T extends WidgetConfig = WidgetConfig> {
-  kind: WidgetKind;
-  name: string;
-  description: string;
-  category: 'data' | 'input' | 'layout' | 'overlay' | 'chart';
-  schema: z.ZodType<T>;
-  defaults: T;
-  component: LazyExoticComponent<ComponentType<{ config: T; onConfigChange?: (config: T) => void }>>;
-  role: MotionRole;
-  parallaxMax: number;
-  overlaySupported: boolean;
-}
-
-// Widget Registry
-export const widgetRegistry: Record<WidgetKind, WidgetSpec> = {
-  'card': {
-    kind: 'card',
-    name: 'Card',
-    description: 'Basic content card with variants',
-    category: 'layout',
-    schema: CardConfigSchema as z.ZodType<CardConfig>,
-    defaults: CardConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/Card')),
-    role: 'card',
-    parallaxMax: 20,
-    overlaySupported: true,
-  },
-  
-  'button': {
-    kind: 'button',
-    name: 'Button',
-    description: 'Interactive button with variants',
-    category: 'input',
-    schema: ButtonConfigSchema as z.ZodType<ButtonConfig>,
-    defaults: ButtonConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/Button')),
-    role: 'card',
-    parallaxMax: 10,
-    overlaySupported: true,
-  },
-  
-  'input': {
-    kind: 'input',
-    name: 'Input',
-    description: 'Form input field',
-    category: 'input',
-    schema: InputConfigSchema as z.ZodType<InputConfig>,
-    defaults: InputConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/Input')),
-    role: 'card',
-    parallaxMax: 5,
-    overlaySupported: false,
-  },
-  
-  'table': {
-    kind: 'table',
-    name: 'Table',
-    description: 'Data table with sorting and density options',
-    category: 'data',
-    schema: TableConfigSchema as z.ZodType<TableConfig>,
-    defaults: TableConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/Table')),
-    role: 'table',
-    parallaxMax: 15,
-    overlaySupported: true,
-  },
-  
-  'kpi': {
-    kind: 'kpi',
-    name: 'KPI Tile',
-    description: 'Key performance indicator display',
-    category: 'data',
-    schema: KPIConfigSchema as z.ZodType<KPIConfig>,
-    defaults: KPIConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/KPITile')),
-    role: 'kpi',
-    parallaxMax: 25,
-    overlaySupported: true,
-  },
-  
-  'animated-list': {
-    kind: 'animated-list',
-    name: 'Animated List',
-    description: 'List with staggered entrance animations',
-    category: 'layout',
-    schema: AnimatedListConfigSchema as z.ZodType<AnimatedListConfig>,
-    defaults: AnimatedListConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/AnimatedList')),
-    role: 'card',
-    parallaxMax: 30,
-    overlaySupported: true,
-  },
-  
-  'chart': {
-    kind: 'chart',
-    name: 'Monochrome Chart',
-    description: 'Simple line chart with monochrome styling',
-    category: 'chart',
-    schema: ChartConfigSchema as z.ZodType<ChartConfig>,
-    defaults: ChartConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/MonochromeLineChart')),
-    role: 'chart',
-    parallaxMax: 20,
-    overlaySupported: true,
-  },
-  
-  'toast': {
-    kind: 'toast',
-    name: 'Toast Manager',
-    description: 'Toast notification system',
-    category: 'overlay',
-    schema: ToastConfigSchema as z.ZodType<ToastConfig>,
-    defaults: ToastConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/ToastManager')),
-    role: 'toast',
-    parallaxMax: 0,
-    overlaySupported: false,
-  },
-  
-  'popup-alert': {
-    kind: 'popup-alert',
-    name: 'Popup Alert',
-    description: 'Modal alert with actions',
-    category: 'overlay',
-    schema: PopupAlertConfigSchema as z.ZodType<PopupAlertConfig>,
-    defaults: PopupAlertConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/PopupAlert')),
-    role: 'modal',
-    parallaxMax: 0,
-    overlaySupported: true,
-  },
-  
-  'lower-third': {
-    kind: 'lower-third',
-    name: 'Lower Third',
-    description: 'Broadcast-style lower third overlay',
-    category: 'overlay',
-    schema: LowerThirdConfigSchema as z.ZodType<LowerThirdConfig>,
-    defaults: LowerThirdConfigSchema.parse({}),
-    component: lazy(() => import('@/widgets/LowerThird')),
-    role: 'banner',
-    parallaxMax: 0,
-    overlaySupported: true,
-  },
-};
-
-// Utility Functions
-export function getWidget(kind: WidgetKind): WidgetSpec | undefined {
-  return widgetRegistry[kind];
-}
-
-export function getWidgetKinds(): WidgetKind[] {
-  return Object.keys(widgetRegistry) as WidgetKind[];
-}
-
-export function getWidgetsByCategory(category: WidgetSpec['category']): WidgetSpec[] {
-  return Object.values(widgetRegistry).filter(spec => spec.category === category);
-}
-
-export function validateWidgetConfig<T extends WidgetConfig>(
-  kind: WidgetKind, 
-  config: unknown
-): { success: true; data: T } | { success: false; error: z.ZodError } {
-  const spec = getWidget(kind);
-  if (!spec) {
-    throw new Error(`Unknown widget kind: ${kind}`);
-  }
-  
-  const result = spec.schema.safeParse(config);
-  if (result.success) {
-    return { success: true, data: result.data as T };
-  } else {
-    return { success: false, error: result.error };
-  }
-// … existing imports and schemas …
-export const BrbScreenConfigSchema = BaseWidgetConfigSchema.extend({
-  message: z.string().default('Be Right Back'),
-  subMessage: z.string().default('We will return shortly'),
-  /** Duration of the countdown in seconds. If omitted, no countdown is shown. */
-  countdown: z.number().optional(),
-  /** Background image URL for the BRB screen. */
-  image: z.string().optional(),
-  motionPreset: z.enum(['modal', 'drawer', 'card']).default('modal'),
-  density: z.enum(['comfortable', 'compact', 'relaxed']).default('comfortable'),
-});
-
-// … configuration types …
 export type BrbScreenConfig = z.infer<typeof BrbScreenConfigSchema>;
 
-// WidgetConfig union extended
 export type WidgetConfig = 
   | CardConfig 
   | ButtonConfig 
@@ -346,7 +140,6 @@ export type WidgetConfig =
   | LowerThirdConfig
   | BrbScreenConfig;
 
-// WidgetKind union extended
 export type WidgetKind = 
   | 'card' 
   | 'button' 
@@ -360,8 +153,137 @@ export type WidgetKind =
   | 'lower-third'
   | 'brb-screen';
 
-// … widgetRegistry additions …
-'brb-screen': {
+export type WidgetCategory = 'basic' | 'form' | 'data' | 'overlay' | 'feedback';
+
+export interface WidgetSpec {
+  kind: WidgetKind;
+  name: string;
+  description: string;
+  category: WidgetCategory;
+  schema: z.ZodType<any>;
+  defaults: WidgetConfig;
+  component: React.LazyExoticComponent<any>;
+  role?: 'region' | 'banner' | 'dialog' | 'alert';
+  parallaxMax?: number;
+  overlaySupported?: boolean;
+}
+
+// ----------------------------
+// Registry
+// ----------------------------
+export const widgetRegistry: Record<WidgetKind, WidgetSpec> = {
+  'card': {
+    kind: 'card',
+    name: 'Card',
+    description: 'Basic card with title and body',
+    category: 'basic',
+    schema: CardConfigSchema as z.ZodType<CardConfig>,
+    defaults: CardConfigSchema.parse({}),
+    component: lazy(() => import('@/widgets/Card'))
+  },
+
+  'button': {
+    kind: 'button',
+    name: 'Button',
+    description: 'Pressable button',
+    category: 'form',
+    schema: ButtonConfigSchema as z.ZodType<ButtonConfig>,
+    defaults: ButtonConfigSchema.parse({}),
+    component: lazy(() => import('@/widgets/Button'))
+  },
+
+  'input': {
+    kind: 'input',
+    name: 'Input',
+    description: 'Accessible text input with validation',
+    category: 'form',
+    schema: InputConfigSchema as z.ZodType<InputConfig>,
+    defaults: InputConfigSchema.parse({}),
+    component: lazy(() => import('@/widgets/Input'))
+  },
+
+  'table': {
+    kind: 'table',
+    name: 'Table',
+    description: 'Data table with sorting and pagination',
+    category: 'data',
+    schema: TableConfigSchema as z.ZodType<TableConfig>,
+    defaults: TableConfigSchema.parse({}),
+    component: lazy(() => import('@/widgets/Table'))
+  },
+
+  'kpi': {
+    kind: 'kpi',
+    name: 'KPI',
+    description: 'Key performance indicator',
+    category: 'data',
+    schema: KPIConfigSchema as z.ZodType<KPIConfig>,
+    defaults: KPIConfigSchema.parse({}),
+    component: lazy(() => import('@/widgets/KPITile'))
+  },
+
+  'animated-list': {
+    kind: 'animated-list',
+    name: 'Animated List',
+    description: 'Animated list for incoming events',
+    category: 'data',
+    schema: AnimatedListConfigSchema as z.ZodType<AnimatedListConfig>,
+    defaults: AnimatedListConfigSchema.parse({}),
+    component: lazy(() => import('@/widgets/AnimatedList'))
+  },
+
+  'chart': {
+    kind: 'chart',
+    name: 'Chart',
+    description: 'Chart widget',
+    category: 'data',
+    schema: ChartConfigSchema as z.ZodType<ChartConfig>,
+    defaults: ChartConfigSchema.parse({}),
+    component: lazy(() => import('@/widgets/Chart'))
+  },
+
+  'toast': {
+    kind: 'toast',
+    name: 'Toast',
+    description: 'Transient notification (aria-live)',
+    category: 'feedback',
+    schema: ToastConfigSchema as z.ZodType<ToastConfig>,
+    defaults: ToastConfigSchema.parse({}),
+    // Import the ToastManager wrapper relative to this registry file.
+    // Using a relative import avoids relying on path aliases inside
+    // lazy() which can sometimes break in test tooling.
+    component: lazy(() => import('./ToastManager')),
+    role: 'alert',
+    overlaySupported: true,
+  },
+
+  'popup-alert': {
+    kind: 'popup-alert',
+    name: 'Popup Alert',
+    description: 'Modal popup/alert with actions',
+    category: 'feedback',
+    schema: PopupAlertConfigSchema as z.ZodType<PopupAlertConfig>,
+    defaults: PopupAlertConfigSchema.parse({}),
+    component: lazy(() => import('./PopupAlert')),
+    role: 'alert',
+    parallaxMax: 0,
+    overlaySupported: true,
+  },
+
+  'lower-third': {
+    kind: 'lower-third',
+    name: 'Lower Third',
+    description: 'Broadcast-style lower third overlay',
+    category: 'overlay',
+    schema: LowerThirdConfigSchema as z.ZodType<LowerThirdConfig>,
+    defaults: LowerThirdConfigSchema.parse({}),
+    component: lazy(() => import('@/widgets/LowerThird')),
+    role: 'banner',
+    parallaxMax: 0,
+    overlaySupported: true,
+  },
+
+  'brb-screen': {
     kind: 'brb-screen',
     name: 'BRB Screen',
     description: 'Full screen overlay indicating the stream will return shortly',
@@ -369,8 +291,8 @@ export type WidgetKind =
     schema: BrbScreenConfigSchema as z.ZodType<BrbScreenConfig>,
     defaults: BrbScreenConfigSchema.parse({}),
     component: lazy(() => import('@/widgets/BrbScreen')),
-    role: 'modal',
+    role: 'dialog'
     parallaxMax: 0,
     overlaySupported: true,
   },
-}
+};
