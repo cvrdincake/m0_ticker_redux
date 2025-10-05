@@ -15,24 +15,9 @@ export function getCoreCommands(): Command[] {
   } = useDashboard.getState();
 
   return [
-    {
-      id: 'ui.toggleHighContrast',
-      title: 'Toggle High Contrast',
-      hint: 'Accessibility',
-      run: () => toggleHighContrast(),
-    },
-    {
-      id: 'ui.toggleSafeMode',
-      title: 'Toggle Safe Mode (Reduce Motion)',
-      hint: 'Accessibility',
-      run: () => toggleSafeMode(),
-    },
-    {
-      id: 'ui.toggleScreenReaderMode',
-      title: 'Toggle Screen-Reader Mode',
-      hint: 'Accessibility',
-      run: () => toggleScreenReaderMode(),
-    },
+    { id: 'ui.toggleHighContrast', title: 'Toggle High Contrast', hint: 'Accessibility', run: () => toggleHighContrast() },
+    { id: 'ui.toggleSafeMode', title: 'Toggle Safe Mode (Reduce Motion)', hint: 'Accessibility', run: () => toggleSafeMode() },
+    { id: 'ui.toggleScreenReaderMode', title: 'Toggle Screen-Reader Mode', hint: 'Accessibility', run: () => toggleScreenReaderMode() },
   ];
 }
 
@@ -53,30 +38,10 @@ export function getBroadcastCommands({
   triggerPopup: (cfg: { message: string; type?: 'info'|'warning'|'error'; actions?: any[] }) => void;
 }): Command[] {
   return [
-    {
-      id: 'broadcast.toast.info',
-      title: 'Show Toast: Info',
-      hint: 'Broadcast',
-      run: () => triggerToast({ message: 'Heads up!', type: 'info', duration: 3000 }),
-    },
-    {
-      id: 'broadcast.toast.success',
-      title: 'Show Toast: Success',
-      hint: 'Broadcast',
-      run: () => triggerToast({ message: 'All set ✅', type: 'success', duration: 3000 }),
-    },
-    {
-      id: 'broadcast.toast.warning',
-      title: 'Show Toast: Warning',
-      hint: 'Broadcast',
-      run: () => triggerToast({ message: 'Careful…', type: 'warning', duration: 4000 }),
-    },
-    {
-      id: 'broadcast.toast.error',
-      title: 'Show Toast: Error',
-      hint: 'Broadcast',
-      run: () => triggerToast({ message: 'Something went wrong', type: 'error', duration: 4000 }),
-    },
+    { id: 'broadcast.toast.info', title: 'Show Toast: Info', hint: 'Broadcast', run: () => triggerToast({ message: 'Heads up!', type: 'info', duration: 3000 }) },
+    { id: 'broadcast.toast.success', title: 'Show Toast: Success', hint: 'Broadcast', run: () => triggerToast({ message: 'All set ✅', type: 'success', duration: 3000 }) },
+    { id: 'broadcast.toast.warning', title: 'Show Toast: Warning', hint: 'Broadcast', run: () => triggerToast({ message: 'Careful…', type: 'warning', duration: 4000 }) },
+    { id: 'broadcast.toast.error', title: 'Show Toast: Error', hint: 'Broadcast', run: () => triggerToast({ message: 'Something went wrong', type: 'error', duration: 4000 }) },
     {
       id: 'broadcast.popup.confirm',
       title: 'Trigger Popup: Confirm',
