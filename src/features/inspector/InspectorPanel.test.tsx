@@ -35,13 +35,13 @@ vi.mock('@/hooks/useDebounce', () => ({
 describe('InspectorPanel', () => {
   const mockWidget = {
     id: 'test-widget-id',
-    type: 'card',
+    kind: 'card',
     title: 'Test Widget',
     width: 4,
     height: 3,
     x: 0,
     y: 0,
-    z: 0,
+    zIndex: 0,
     config: {
       dataSource: 'api/data',
       motionPreset: 'card',

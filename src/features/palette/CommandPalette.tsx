@@ -89,7 +89,7 @@ export const CommandPalette = ({
       label: 'Add Animated List',
       description: 'Add an animated list component',
       category: 'Add Widget',
-      action: () => activeDashboardId && addWidget(activeDashboardId, 'animatedList'),
+      action: () => activeDashboardId && addWidget(activeDashboardId, 'animated-list'),
       shortcut: '⌘+5'
     },
     {
@@ -97,7 +97,7 @@ export const CommandPalette = ({
       label: 'Add Lower Third',
       description: 'Add a broadcast lower third',
       category: 'Add Widget',
-      action: () => activeDashboardId && addWidget(activeDashboardId, 'lowerThird'),
+      action: () => activeDashboardId && addWidget(activeDashboardId, 'lower-third'),
       shortcut: '⌘+6'
     },
     {
@@ -105,7 +105,7 @@ export const CommandPalette = ({
       label: 'Add Popup Alert',
       description: 'Add a popup alert notification',
       category: 'Add Widget',
-      action: () => activeDashboardId && addWidget(activeDashboardId, 'popupAlert'),
+      action: () => activeDashboardId && addWidget(activeDashboardId, 'popup-alert'),
       shortcut: '⌘+7'
     },
     

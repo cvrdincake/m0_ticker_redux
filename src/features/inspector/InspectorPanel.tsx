@@ -5,8 +5,6 @@ import styles from './InspectorPanel.module.css';
 
 // Dashboard state
 import { useDashboardStore } from '@/store/useDashboard';
-// Global toggles (same store, used for selector-based access)
-import useDashboard from '@/store/useDashboard';
 
 // Debounce util
 import { useDebounce } from '@/hooks/useDebounce';
@@ -41,12 +39,18 @@ export const InspectorPanel = ({
   const { selectedWidgetId, widgets, updateWidget } = useDashboardStore();
   const selectedWidget = selectedWidgetId ? widgets[selectedWidgetId] : undefined;
 
-  const { highContrast, safeMode, toggleHighContrast, toggleSafeMode, screenReaderMode, toggleScreenReaderMode } =
-    useDashboard();
+  const {
+    highContrast,
+    safeMode,
+    toggleHighContrast,
+    toggleSafeMode,
+    screenReaderMode,
+    toggleScreenReaderMode,
+  } = useDashboardStore();
 
-  const isTable = selectedWidget?.type === 'table';
-  const isLowerThird = selectedWidget?.type === 'lowerThird';
-  const isBRB = selectedWidget?.type === 'brb-screen';
+  const isTable = selectedWidget?.kind === 'table';
+  const isLowerThird = selectedWidget?.kind === 'lower-third';
+  const isBRB = selectedWidget?.kind === 'brb-screen';
 
   const tableColumns: string[] = useMemo(() => {
     if (!isTable) return [];
@@ -428,7 +432,7 @@ export const InspectorPanel = ({
             <div className={styles.infoGrid}>
               <div className={styles.infoItem}>
                 <Text size="xs" color="tertiary">Type</Text>
-                <Text size="sm" className={styles.infoValue}>{selectedWidget.type}</Text>
+          <Text size="sm" className={styles.infoValue}>{selectedWidget.kind}</Text>
               </div>
               <div className={styles.infoItem}>
                 <Text size="xs" color="tertiary">Size</Text>

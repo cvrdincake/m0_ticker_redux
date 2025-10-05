@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Dashboard } from '../Dashboard';
+import Dashboard from '@/pages/Dashboard';
 
 // Mock the dashboard store for Storybook
 const mockDashboardStore = {
   widgets: {
     'widget-1': {
       id: 'widget-1',
-      type: 'card',
+      kind: 'card',
       title: 'Sample Card',
       x: 0,
       y: 0,
       width: 4,
       height: 3,
-      z: 0,
+      zIndex: 0,
       config: {
         dataSource: 'api/cards',
         motionPreset: 'card',
@@ -22,13 +22,13 @@ const mockDashboardStore = {
     },
     'widget-2': {
       id: 'widget-2',
-      type: 'chart',
+      kind: 'chart',
       title: 'Performance Chart',
       x: 5,
       y: 0,
       width: 6,
       height: 4,
-      z: 1,
+      zIndex: 1,
       config: {
         dataSource: 'api/metrics',
         motionPreset: 'chart',
@@ -38,13 +38,13 @@ const mockDashboardStore = {
     },
     'widget-3': {
       id: 'widget-3',
-      type: 'kpi',
+      kind: 'kpi',
       title: 'Key Metric',
       x: 0,
       y: 4,
       width: 3,
       height: 2,
-      z: 2,
+      zIndex: 2,
       config: {
         dataSource: 'api/kpis',
         motionPreset: 'kpi',
@@ -54,6 +54,34 @@ const mockDashboardStore = {
     }
   },
   selectedWidgetId: 'widget-1',
+  activeDashboardId: 'dashboard-1',
+  dashboards: {
+    'dashboard-1': {
+      id: 'dashboard-1',
+      name: 'Sample Dashboard',
+      widgets: ['widget-1', 'widget-2', 'widget-3'],
+    },
+  },
+  layouts: ['dashboard-1'],
+  globalData: {},
+  toasts: [],
+  popup: null,
+  safeMode: false,
+  highContrast: false,
+  screenReaderMode: false,
+  config: {
+    autoRefresh: false,
+    refreshInterval: 10000,
+    showGrid: true,
+    gridSize: 12,
+    enableAnimations: true,
+    animationSpeed: 1,
+    enableParallax: false,
+    defaultChartHeight: 320,
+    showDataPoints: true,
+    lineWidth: 2,
+  },
+  setGlobalData: () => {},
   getActiveDashboard: () => ({
     id: 'dashboard-1',
     name: 'Sample Dashboard',
@@ -67,12 +95,30 @@ const mockDashboardStore = {
   resizeWidget: () => {},
   duplicateWidget: () => {},
   alignWidgets: () => {},
+  distributeWidgets: () => {},
   bringToFront: () => {},
   sendToBack: () => {},
   raiseWidget: () => {},
   lowerWidget: () => {},
-  exportDashboard: () => {},
-  importDashboard: () => {}
+  exportDashboard: () => null,
+  importDashboard: () => {},
+  addWidgetToActive: () => {},
+  updateWidgetConfig: () => {},
+  switchLayout: () => {},
+  getSelectedWidget: () => null,
+  triggerToast: () => {},
+  dismissToast: () => {},
+  triggerPopup: () => {},
+  dismissPopup: () => {},
+  toggleSafeMode: () => {},
+  toggleHighContrast: () => {},
+  toggleScreenReaderMode: () => {},
+  updateConfig: () => {},
+  resetConfig: () => {},
+  setAccent: () => {},
+  accentH: 210,
+  accentS: 50,
+  accentL: 45,
 };
 
 // Mock the store hook
