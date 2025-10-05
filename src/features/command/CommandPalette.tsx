@@ -2,15 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useFocusTrap } from '@/utils/accessibility';
 import { getCoreCommands, getLayoutCommands, getBroadcastCommands, Command } from './commands';
 import useDashboard from '@/store/useDashboard';
-import { useDashboardStore } from '@/store/useDashboard'; // widgets/layout control if needed
+import { useDashboardStore } from '@/store/useDashboard';
 
 export default function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   useFocusTrap(ref, open);
   const [q, setQ] = useState('');
-  const { switchLayout, triggerToast, triggerPopup } = useDashboardStore(); // ensure these exist; see store patch below
+  const { switchLayout, triggerToast, triggerPopup } = useDashboardStore(); // ensure store exports these actions
 
-  const layouts = ['Default', 'Interview', 'Desk']; // or read from store
+  const { layouts = ['Default'] } = useDashboardStore();
   const commands: Command[] = [
     ...getCoreCommands(),
     ...getLayoutCommands(layouts, (name) => switchLayout?.(name)),
