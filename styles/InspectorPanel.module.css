@@ -1,0 +1,12 @@
+/* InspectorPanel.module.css */
+
+.sectionTitle {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  margin: .75rem 0;
+}
+
+details[open] > .section {
+  margin-top: .25rem;
+}

@@ -1,0 +1,42 @@
+/* src/pages/status.css */
+.page { 
+  padding: var(--space-16) var(--space-8); 
+  color: var(--ink); 
+}
+
+.page--status h1 { 
+  font-size: var(--text-3xl);
+  font-family: var(--font-family-mono);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-8);
+}
+
+.meta { 
+  list-style: none; 
+  margin: 0; 
+  padding: 0; 
+  display: grid; 
+  gap: var(--space-4); 
+  max-width: var(--size-3xl);
+}
+
+.meta li { 
+  display: flex; 
+  justify-content: space-between; 
+  border-bottom: 1px solid var(--border); 
+  padding: var(--space-3) 0;
+}
+
+.meta span { 
+  color: var(--ink-muted); 
+  font-size: var(--text-sm);
+  font-family: var(--font-family-mono);
+}
+
+.meta strong { 
+  font-size: var(--text-base);
+  font-family: var(--font-family-mono);
+  color: var(--ink); 
+  font-weight: 500;
+}

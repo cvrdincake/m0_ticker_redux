@@ -1,0 +1,99 @@
+/* Dashboard Layout Styles */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: 1fr auto;
+  grid-template-areas: 
+    "grid inspector"
+    "status status";
+  height: 100vh;
+  background-color: var(--surface);
+  overflow: hidden;
+}
+
+.gridContainer {
+  grid-area: grid;
+  position: relative;
+  overflow: hidden;
+}
+
+.statusBar {
+  grid-area: status;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-6);
+  background-color: var(--surface-strong);
+  border-top: 1px solid var(--border);
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+  z-index: var(--z-fixed);
+}
+
+.statusInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-family-mono);
+}
+
+.statusActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  font-family: var(--font-family-mono);
+  font-size: var(--text-xs);
+  opacity: 0.7;
+}
+
+.statusActions span {
+  padding: var(--space-1) var(--space-2);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+/* Layout adjustments when inspector is closed */
+.dashboard:not(:has(.inspector)) {
+  grid-template-columns: 1fr;
+  grid-template-areas: 
+    "grid"
+    "status";
+}
+
+/* High contrast mode */
+html.hc .statusBar {
+  background-color: var(--surface);
+  border-color: var(--ink);
+}
+
+html.hc .statusActions span {
+  background-color: var(--surface-lift);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas: 
+      "grid"
+      "status";
+  }
+  
+  .statusActions {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .statusBar {
+    padding: var(--space-2) var(--space-4);
+  }
+  
+  .statusInfo {
+    font-size: var(--text-xs);
+  }
+}

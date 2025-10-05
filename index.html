@@ -1,14 +1,41 @@
-<!DOCTYPE html>
+<!-- index.html -->
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="M0 Ticker Redux - Production-ready dashboard with monochrome design system" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Preload brand-critical assets (adjust paths as needed) -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      href="/assets/fonts/InterVariable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/assets/brand/wordmark.svg"
+      as="image"
+      type="image/svg+xml"
+    />
+
     <title>M0 Ticker Redux</title>
+    <style>
+      /* Prevent white flash in OBS/Chromium during hydration */
+      html, body, #root { height: 100%; }
+      html { background:#000; }
+      body { margin:0; background:var(--surface, #000); color:var(--ink, #fff); }
+    </style>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
