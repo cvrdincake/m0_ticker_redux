@@ -1,6 +1,6 @@
 // Use the JavaScript dashboard store for widget state
 import { useDashboardStore } from '@/store/useDashboard';
-// Import the TypeScript dashboard store to access highContrast and safeMode toggles
+// Import the TypeScript dashboard store to access highContrast and Safe Mode toggles
 import useDashboard from '@/store/useDashboard';
 import { Button, Input, Text } from '@/design-system';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -41,13 +41,10 @@ export const InspectorPanel = ({
   // Resolve the currently selected widget from the store. If none is selected, this will be undefined.
   const selectedWidget = selectedWidgetId ? widgets[selectedWidgetId] : undefined;
 
-  // Pull global accessibility settings and toggles from the TypeScript store.  These control
-  // high contrast mode and safe mode across the entire application.  We expose
-  // functions to toggle these settings from within the inspector UI.
+  // Pull global accessibility settings and toggles from the TypeScript store.
   const { highContrast, safeMode, toggleHighContrast, toggleSafeMode } = useDashboard();
 
-  // Local state mirrors the selected widget's config for editing in the inspector. When the selected widget changes,
-  // we reset this state accordingly in a separate effect.
+  // Local state mirrors the selected widget's config for editing in the inspector.
   const [localConfig, setLocalConfig] = useState(() => ({
     title: selectedWidget?.title || '',
     dataSource: selectedWidget?.config?.dataSource || '',
@@ -60,15 +57,16 @@ export const InspectorPanel = ({
     speed: (selectedWidget?.config as any)?.speed ?? 60,
     direction: (selectedWidget?.config as any)?.direction || 'left',
     pauseOnHover: (selectedWidget?.config as any)?.pauseOnHover ?? true,
+    // Table specific
+    filter: (selectedWidget?.config as any)?.filter || '',
+    columnOrder: (selectedWidget?.config as any)?.columnOrder || [],
+    columnTypes: (selectedWidget?.config as any)?.columnTypes || {},
   }));
   
-  // Debounced updates for live preview (200ms as specified). Whenever any field in localConfig
-  // changes, we wait a short period before persisting it back into the store. This avoids rapid
-  // writes on every keystroke.
+  // Debounced updates for live preview (200ms)
   const debouncedConfig = useDebounce(localConfig, 200);
   
-  // Apply debounced changes to the underlying widget in the dashboard store. If no widget is
-  // selected, nothing happens.
+  // Apply debounced changes to store
   useEffect(() => {
     if (!selectedWidget || !selectedWidgetId) return;
     
@@ -80,18 +78,21 @@ export const InspectorPanel = ({
         motionPreset: debouncedConfig.motionPreset,
         density: debouncedConfig.density,
         ariaLabel: debouncedConfig.ariaLabel,
-        // Persist ticker-related properties if they exist on the widget. Other widgets will ignore them.
+        // LowerThird
         showTicker: debouncedConfig.showTicker,
         tickerText: debouncedConfig.tickerText,
         speed: debouncedConfig.speed,
         direction: debouncedConfig.direction,
-        pauseOnHover: debouncedConfig.pauseOnHover
+        pauseOnHover: debouncedConfig.pauseOnHover,
+        // Table
+        filter: debouncedConfig.filter,
+        columnOrder: debouncedConfig.columnOrder,
+        columnTypes: debouncedConfig.columnTypes
       }
     });
   }, [debouncedConfig, selectedWidget, selectedWidgetId, updateWidget]);
   
-  // Reset localConfig whenever the selected widget changes so the inspector reflects the current
-  // widget's properties. Include the ticker fields to allow editing for LowerThird widgets.
+  // Reset local state when selection changes
   useEffect(() => {
     if (selectedWidget) {
       setLocalConfig({
@@ -104,16 +105,31 @@ export const InspectorPanel = ({
         tickerText: (selectedWidget.config as any)?.tickerText || '',
         speed: (selectedWidget.config as any)?.speed ?? 60,
         direction: (selectedWidget.config as any)?.direction || 'left',
-        pauseOnHover: (selectedWidget.config as any)?.pauseOnHover ?? true
+        pauseOnHover: (selectedWidget.config as any)?.pauseOnHover ?? true,
+        filter: (selectedWidget.config as any)?.filter || '',
+        columnOrder: (selectedWidget.config as any)?.columnOrder || [],
+        columnTypes: (selectedWidget.config as any)?.columnTypes || {},
       });
     }
   }, [selectedWidget]);
   
-  const handleConfigChange = (field: string, value: string) => {
-    setLocalConfig(prev => ({ ...prev, [field]: value }));
+  const handleConfigChange = (field: string, value: any) => {
+    setLocalConfig((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Specialised handler for updating a table column type
+  const handleColumnTypeChange = (key: string, type: 'string' | 'number') => {
+    setLocalConfig((prev) => ({
+      ...prev,
+      columnTypes: {
+        ...(prev as any).columnTypes,
+        [key]: type
+      }
+    }));
   };
   
   if (!isOpen) return null;
+
   if (!selectedWidget) {
     return (
       <div className={cn(styles.panel, styles.empty, className)} {...props}>
@@ -136,6 +152,22 @@ export const InspectorPanel = ({
     );
   }
   
+  // Helper to detect table widget
+  const isTable = selectedWidget?.type === 'table';
+
+  // Get columns as strings for UI display
+  const tableColumns: string[] = isTable
+    ? ((Array.isArray((selectedWidget.config as any)?.columns)
+      ? (selectedWidget.config as any).columns
+      : []) as any[]).map((c: any) => (typeof c === 'string' ? c : c?.key).trim()).filter(Boolean)
+    : [];
+
+  // Current column order string for input
+  const columnOrderString =
+    (localConfig.columnOrder && Array.isArray(localConfig.columnOrder) && localConfig.columnOrder.length > 0)
+      ? (localConfig.columnOrder as string[]).join(', ')
+      : tableColumns.join(', ');
+
   return (
     <div 
       className={cn(styles.panel, className)} 
@@ -238,80 +270,149 @@ export const InspectorPanel = ({
             />
           </div>
 
-        {/* Ticker configuration fields for LowerThird widgets */}
-        {selectedWidget?.type === 'lowerThird' && (
-          <>
-            <div className={styles.field}>
-              <Text as="h4" size="xs" weight="medium" className={styles.sectionTitle}>
-                Ticker Settings
-              </Text>
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="ticker-enabled" className={styles.label}>
-                <Text size="sm" color="secondary">Show Ticker</Text>
-              </label>
-              <input
-                id="ticker-enabled"
-                type="checkbox"
-                checked={localConfig.showTicker}
-                onChange={(e) => handleConfigChange('showTicker', e.target.checked)}
-              />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="ticker-text" className={styles.label}>
-                <Text size="sm" color="secondary">Ticker Text</Text>
-              </label>
-              <Input
-                id="ticker-text"
-                type="text"
-                value={localConfig.tickerText}
-                onChange={(e) => handleConfigChange('tickerText', e.target.value)}
-                placeholder="Headline or message"
-                size="sm"
-              />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="ticker-speed" className={styles.label}>
-                <Text size="sm" color="secondary">Ticker Speed (px/s)</Text>
-              </label>
-              <Input
-                id="ticker-speed"
-                type="number"
-                value={localConfig.speed}
-                min={10}
-                max={500}
-                step={10}
-                onChange={(e) => handleConfigChange('speed', Number(e.target.value))}
-                size="sm"
-              />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="ticker-direction" className={styles.label}>
-                <Text size="sm" color="secondary">Direction</Text>
-              </label>
-              <select
-                id="ticker-direction"
-                value={localConfig.direction}
-                onChange={(e) => handleConfigChange('direction', e.target.value)}
-                className={styles.select}
-              >
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="ticker-pause" className={styles.label}>
-                <Text size="sm" color="secondary">Pause on Hover</Text>
-              </label>
-              <input
-                id="ticker-pause"
-                type="checkbox"
-                checked={localConfig.pauseOnHover}
-                onChange={(e) => handleConfigChange('pauseOnHover', e.target.checked)}
-              />
-            </div>
-          </>
-        )}
+          {/* Table settings */}
+          {isTable && (
+            <>
+              <div className={styles.field}>
+                <Text as="h4" size="xs" weight="medium" className={styles.sectionTitle}>
+                  Table Settings
+                </Text>
+              </div>
+
+              <div className={styles.field}>
+                <label htmlFor="table-filter" className={styles.label}>
+                  <Text size="sm" color="secondary">Filter (search)</Text>
+                </label>
+                <Input
+                  id="table-filter"
+                  type="text"
+                  value={localConfig.filter || ''}
+                  onChange={(e) => handleConfigChange('filter', e.target.value)}
+                  placeholder="Filter rows"
+                  size="sm"
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label htmlFor="table-column-order" className={styles.label}>
+                  <Text size="sm" color="secondary">Column Order (comma separated)</Text>
+                </label>
+                <Input
+                  id="table-column-order"
+                  type="text"
+                  value={columnOrderString}
+                  onChange={(e) => {
+                    const parts = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                    handleConfigChange('columnOrder', parts);
+                  }}
+                  placeholder="e.g. timestamp, level, message"
+                  size="sm"
+                />
+              </div>
+
+              {/* Per-column type selectors */}
+              {tableColumns.length > 0 && (
+                <div className={styles.field}>
+                  <Text size="sm" color="secondary" className={styles.label}>
+                    Column Types
+                  </Text>
+                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+                    {tableColumns.map((key) => (
+                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <label htmlFor={`col-type-${key}`} style={{ minWidth: 120 }}>
+                          <Text size="xs">{key}</Text>
+                        </label>
+                        <select
+                          id={`col-type-${key}`}
+                          value={(localConfig.columnTypes as any)[key] || 'string'}
+                          onChange={(e) => handleColumnTypeChange(key, e.target.value as 'string' | 'number')}
+                          className={styles.select}
+                        >
+                          <option value="string">Alphabetical</option>
+                          <option value="number">Numeric</option>
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Ticker configuration fields for LowerThird widgets */}
+          {selectedWidget?.type === 'lowerThird' && (
+            <>
+              <div className={styles.field}>
+                <Text as="h4" size="xs" weight="medium" className={styles.sectionTitle}>
+                  Ticker Settings
+                </Text>
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="ticker-enabled" className={styles.label}>
+                  <Text size="sm" color="secondary">Show Ticker</Text>
+                </label>
+                <input
+                  id="ticker-enabled"
+                  type="checkbox"
+                  checked={localConfig.showTicker}
+                  onChange={(e) => handleConfigChange('showTicker', e.target.checked)}
+                />
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="ticker-text" className={styles.label}>
+                  <Text size="sm" color="secondary">Ticker Text</Text>
+                </label>
+                <Input
+                  id="ticker-text"
+                  type="text"
+                  value={localConfig.tickerText}
+                  onChange={(e) => handleConfigChange('tickerText', e.target.value)}
+                  placeholder="Headline or message"
+                  size="sm"
+                />
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="ticker-speed" className={styles.label}>
+                  <Text size="sm" color="secondary">Ticker Speed (px/s)</Text>
+                </label>
+                <Input
+                  id="ticker-speed"
+                  type="number"
+                  value={localConfig.speed}
+                  min={10}
+                  max={500}
+                  step={10}
+                  onChange={(e) => handleConfigChange('speed', Number(e.target.value))}
+                  size="sm"
+                />
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="ticker-direction" className={styles.label}>
+                  <Text size="sm" color="secondary">Direction</Text>
+                </label>
+                <select
+                  id="ticker-direction"
+                  value={localConfig.direction}
+                  onChange={(e) => handleConfigChange('direction', e.target.value)}
+                  className={styles.select}
+                >
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="ticker-pause" className={styles.label}>
+                  <Text size="sm" color="secondary">Pause on Hover</Text>
+                </label>
+                <input
+                  id="ticker-pause"
+                  type="checkbox"
+                  checked={localConfig.pauseOnHover}
+                  onChange={(e) => handleConfigChange('pauseOnHover', e.target.checked)}
+                />
+              </div>
+            </>
+          )}
         </div>
         
         <div className={styles.section}>
@@ -345,7 +446,7 @@ export const InspectorPanel = ({
           </div>
         </div>
 
-        {/* Display preferences section: high contrast and safe mode toggles */}
+        {/* Display preferences section */}
         <div className={styles.section}>
           <Text as="h3" size="sm" weight="medium" className={styles.sectionTitle}>
             Display Preferences
