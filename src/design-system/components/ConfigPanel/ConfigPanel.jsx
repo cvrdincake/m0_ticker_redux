@@ -295,7 +295,7 @@ const ConfigPanel = ({
             </div>
             
             {/* Chart widget specific config */}
-            {selectedWidget.type === 'chart' && (
+            {selectedWidget.kind === 'chart' && (
               <>
                 <div className={styles.field}>
                   <Text size="sm" color="secondary" className={styles.label}>

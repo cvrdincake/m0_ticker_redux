@@ -1,4 +1,4 @@
-import { useDashboard } from '@/store/useDashboard';
+import { useDashboardStore } from '@/store/useDashboard';
 import { cn } from '@/lib/utils';
 import styles from './AlignmentGuides.module.css';
 
@@ -164,7 +164,7 @@ export const AlignmentGuides = ({
   className,
   ...props 
 }: AlignmentGuidesProps) => {
-  const { widgets, getActiveDashboard } = useDashboard();
+  const { widgets, getActiveDashboard } = useDashboardStore();
   
   if (!draggedWidgetId || !dragPosition) {
     return null;

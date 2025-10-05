@@ -1,19 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFocusTrap } from '@/utils/accessibility';
 import { getCoreCommands, getLayoutCommands, getBroadcastCommands, Command } from './commands';
-import useDashboard from '@/store/useDashboard';
 import { useDashboardStore } from '@/store/useDashboard';
 
 export default function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   useFocusTrap(ref, open);
   const [q, setQ] = useState('');
-  const { switchLayout, triggerToast, triggerPopup } = useDashboardStore(); // ensure store exports these actions
-
-  const { layouts = ['Default'] } = useDashboardStore();
+  const { layouts, dashboards, switchLayout, triggerToast, triggerPopup } = useDashboardStore(state => ({
+    layouts: state.layouts,
+    dashboards: state.dashboards,
+    switchLayout: state.switchLayout,
+    triggerToast: state.triggerToast,
+    triggerPopup: state.triggerPopup,
+  }));
+  const layoutEntries = layouts.map(id => ({ id, name: dashboards[id]?.name ?? id }));
   const commands: Command[] = [
     ...getCoreCommands(),
-    ...getLayoutCommands(layouts, (name) => switchLayout?.(name)),
+    ...getLayoutCommands(layoutEntries, (id) => switchLayout?.(id)),
     ...getBroadcastCommands({ triggerToast, triggerPopup }),
   ];
 

@@ -1,4 +1,4 @@
-import useDashboard from '@/store/useDashboard';
+import { useDashboardStore } from '@/store/useDashboard';
 
 export type Command = {
   id: string;
@@ -12,7 +12,7 @@ export function getCoreCommands(): Command[] {
     toggleHighContrast,
     toggleSafeMode,
     toggleScreenReaderMode,
-  } = useDashboard.getState();
+  } = useDashboardStore.getState();
 
   return [
     {
@@ -36,12 +36,15 @@ export function getCoreCommands(): Command[] {
   ];
 }
 
-export function getLayoutCommands(layouts: string[], onSwitch: (name: string) => void): Command[] {
-  return layouts.map((name) => ({
-    id: `layout.switch.${name}`,
+export function getLayoutCommands(
+  layouts: { id: string; name: string }[],
+  onSwitch: (id: string) => void
+): Command[] {
+  return layouts.map(({ id, name }) => ({
+    id: `layout.switch.${id}`,
     title: `Switch Layout → ${name}`,
     hint: 'Layout',
-    run: () => onSwitch(name),
+    run: () => onSwitch(id),
   }));
 }
 

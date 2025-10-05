@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useDashboard } from '@/store/useDashboard';
+import { useDashboardStore } from '@/store/useDashboard';
 import { AlignmentGuides, snapToGuides, nearestGuides } from './AlignmentGuides';
 import { cn } from '@/lib/utils';
 import styles from './DashboardGrid.module.css';
@@ -17,11 +17,11 @@ interface DragState {
 }
 
 export const DashboardGrid = ({ className, ...props }: DashboardGridProps) => {
-  const { 
-    widgets, 
-    getActiveDashboard, 
-    updateWidget, 
-    selectWidget, 
+  const {
+    widgets,
+    getActiveDashboard,
+    updateWidget,
+    selectWidget,
     selectedWidgetId,
     nudgeWidget,
     resizeWidget,
@@ -122,7 +122,7 @@ export const DashboardGrid = ({ className, ...props }: DashboardGridProps) => {
       case ' ':
         e.preventDefault();
         selectWidget(widgetId);
-        announce(`Selected ${widget.title || widget.type} widget`);
+        announce(`Selected ${widget.title || widget.kind} widget`);
         break;
     }
   }, [widgets, nudgeWidget, resizeWidget, duplicateWidget, deleteWidget, selectWidget, announce]);
@@ -243,10 +243,10 @@ export const DashboardGrid = ({ className, ...props }: DashboardGridProps) => {
         <div
           key={widget.id}
           role="group"
-          aria-label={widget.config?.ariaLabel || widget.title || widget.type}
+          aria-label={widget.config?.ariaLabel || widget.title || widget.kind}
           tabIndex={0}
           data-widget-id={widget.id}
-          data-widget-kind={widget.type}
+          data-widget-kind={widget.kind}
           className={cn(
             styles.widget,
             selectedWidgetId === widget.id && styles.selected,
@@ -257,7 +257,7 @@ export const DashboardGrid = ({ className, ...props }: DashboardGridProps) => {
             top: `${widget.y * 60}px`,
             width: `${widget.width * 60}px`,
             height: `${widget.height * 60}px`,
-            zIndex: widget.z || 0
+            zIndex: widget.zIndex || 0
           }}
           onMouseDown={(e) => handleMouseDown(e, widget.id)}
           onKeyDown={(e) => handleWidgetKeyDown(e, widget.id)}
@@ -265,19 +265,19 @@ export const DashboardGrid = ({ className, ...props }: DashboardGridProps) => {
           <div className={styles.widgetContent}>
             <div className={styles.widgetHeader}>
               <span className={styles.widgetTitle}>
-                {widget.title || widget.type}
+                {widget.title || widget.kind}
               </span>
               <span className={styles.widgetType}>
-                {widget.type}
+                {widget.kind}
               </span>
             </div>
             
             <div className={styles.widgetBody}>
               {/* Widget content would be rendered here based on type */}
               <div className={styles.placeholder}>
-                {widget.type} widget content
+                {widget.kind} widget content
               </div>
-            </div>
+          </div>
           </div>
           
           {/* Resize handle */}

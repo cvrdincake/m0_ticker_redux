@@ -16,13 +16,13 @@ vi.mock('@/store/useDashboard', () => ({
     widgets: {
       'widget-1': {
         id: 'widget-1',
-        type: 'card',
+        kind: 'card',
         title: 'Test Card',
         x: 0,
         y: 0,
         width: 4,
         height: 3,
-        z: 0,
+        zIndex: 0,
         config: { ariaLabel: 'Test card widget' }
       }
     },

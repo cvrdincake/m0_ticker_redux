@@ -1,136 +1,103 @@
-import React, { Suspense, useState, useEffect } from 'react';
-import { WidgetConfig, WidgetKind, getWidget, validateWidgetConfig } from '@/widgets/registry';
+import { Suspense } from 'react';
+import { useDashboardStore } from '@/store/useDashboard';
+import { getWidget, validateWidgetConfig, type WidgetConfig, type WidgetKind } from '@/widgets/registry';
+import styles from './renderer.module.css';
 
 interface WidgetHostProps {
   kind: WidgetKind;
   config: WidgetConfig;
-  onConfigChange?: (config: WidgetConfig) => void;
-  className?: string;
   id?: string;
+  className?: string;
 }
 
-interface WidgetState {
-  status: 'loading' | 'ready' | 'error';
-  error?: string;
-}
-
-export function WidgetHost({ kind, config, onConfigChange, className, id }: WidgetHostProps) {
-  const [state, setState] = useState<WidgetState>({ status: 'loading' });
-  const [validatedConfig, setValidatedConfig] = useState<WidgetConfig | null>(null);
-  
+export function WidgetHost({ kind, config, id, className }: WidgetHostProps) {
   const spec = getWidget(kind);
-  
-  useEffect(() => {
-    if (!spec) {
-      setState({ status: 'error', error: `Unknown widget kind: ${kind}` });
-      return;
-    }
-    
-    // Validate configuration
-    const validation = validateWidgetConfig(kind, config);
-    if (!validation.success) {
-      console.warn(`Widget ${kind} configuration invalid, using defaults:`, validation.error);
-      setValidatedConfig(spec.defaults);
-    } else {
-      setValidatedConfig(validation.data);
-    }
-    
-    setState({ status: 'ready' });
-  }, [kind, config, spec]);
-  
-  const handleConfigChange = (newConfig: WidgetConfig) => {
-    const validation = validateWidgetConfig(kind, newConfig);
-    if (validation.success) {
-      setValidatedConfig(validation.data);
-      onConfigChange?.(validation.data);
-    } else {
-      console.error(`Invalid configuration for ${kind}:`, validation.error);
-    }
-  };
-  
+
   if (!spec) {
     return (
-      <div 
-        className={`widget-error ${className || ''}`}
-        role="alert"
-        aria-label={`Error: Unknown widget type ${kind}`}
-      >
-        <div className="error-content">
-          <h3>Widget Error</h3>
-          <p>Unknown widget type: {kind}</p>
-        </div>
+      <div role="alert" className={className}>
+        Unknown widget kind: {kind}
       </div>
     );
   }
-  
-  if (state.status === 'error') {
-    return (
-      <div 
-        className={`widget-error ${className || ''}`}
-        role="alert"
-        aria-label={`Error loading ${spec.name}`}
-      >
-        <div className="error-content">
-          <h3>Widget Error</h3>
-          <p>{state.error}</p>
-        </div>
-      </div>
-    );
-  }
-  
-  if (state.status === 'loading' || !validatedConfig) {
-    return (
-      <div 
-        className={`widget-skeleton ${className || ''}`}
-        role="group"
-        aria-label={`Loading ${spec.name}`}
-      >
-        <div className="skeleton-content">
-          <div className="skeleton-header" />
-          <div className="skeleton-body">
-            <div className="skeleton-line" />
-            <div className="skeleton-line" />
-            <div className="skeleton-line short" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  const WidgetComponent = spec.component;
-  
+
+  const validated = validateWidgetConfig(kind, config);
+  const resolvedConfig = validated.success ? (validated.data as WidgetConfig) : spec.defaults;
+  const Component = spec.component;
+
   return (
-    <div 
-      className={`widget-host ${className || ''}`}
-      role="group"
-      aria-label={validatedConfig.ariaLabel || validatedConfig.title || spec.name}
-      id={id}
-      data-widget-kind={kind}
-      data-motion-role={spec.role}
-      data-parallax-max={spec.parallaxMax}
-      data-overlay-supported={spec.overlaySupported}
+    <Suspense
+      fallback={
+        <div className={className}>
+          <div className={styles.skeleton} aria-hidden="true" />
+        </div>
+      }
     >
-      <Suspense 
-        fallback={
-          <div className="widget-skeleton">
-            <div className="skeleton-content">
-              <div className="skeleton-header" />
-              <div className="skeleton-body">
-                <div className="skeleton-line" />
-                <div className="skeleton-line" />
-                <div className="skeleton-line short" />
-              </div>
-            </div>
-          </div>
-        }
-      >
-        <WidgetComponent 
-          config={validatedConfig} 
-          onConfigChange={handleConfigChange}
-        />
-      </Suspense>
+      <Component config={resolvedConfig} id={id} />
+    </Suspense>
+  );
+}
+
+export interface RenderWidget {
+  id: string;
+  kind: WidgetKind;
+  config: WidgetConfig;
+  className?: string;
+  frame?: { x: number; y: number; w: number; h: number };
+}
+
+export function DashboardRenderer({ widgets }: { widgets: RenderWidget[] }) {
+  return (
+    <div className={styles.dashboardWrap}>
+      {widgets.map(widget => (
+        <div key={widget.id} className={styles.dashboardItem}>
+          <WidgetHost {...widget} />
+        </div>
+      ))}
     </div>
   );
 }
 
-export default WidgetHost;
+export function OverlayRenderer({ widgets }: { widgets: RenderWidget[] }) {
+  return (
+    <div className={styles.overlayStage} aria-label="Overlay">
+      {widgets.map(widget => (
+        <div
+          key={widget.id}
+          className={styles.overlayItem}
+          style={widget.frame ? {
+            position: 'absolute',
+            left: widget.frame.x,
+            top: widget.frame.y,
+            width: widget.frame.w,
+            height: widget.frame.h,
+          } : undefined}
+        >
+          <WidgetHost {...widget} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function OverlayStage() {
+  const overlayWidgets = useDashboardStore(state => {
+    const dashboard = state.getActiveDashboard();
+    if (!dashboard) return [] as RenderWidget[];
+    return dashboard.widgets
+      .map(id => state.widgets[id])
+      .filter(widget => widget && widget.overlayVisible)
+      .map(widget => ({
+        id: widget.id,
+        kind: widget.kind,
+        config: widget.config,
+        frame: widget.frame,
+      })) as RenderWidget[];
+  });
+
+  return <OverlayRenderer widgets={overlayWidgets} />;
+}
+
+export function renderOverlay() {
+  return <OverlayStage />;
+}

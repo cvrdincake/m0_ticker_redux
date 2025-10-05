@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useDashboard } from '@/store/useDashboard';
+import { useDashboardStore } from '@/store/useDashboard';
 import { cn } from '@/lib/utils';
 import styles from './ContextMenu.module.css';
 
@@ -28,15 +28,15 @@ export const ContextMenu = ({
   className,
   ...props 
 }: ContextMenuProps) => {
-  const { 
-    bringToFront, 
-    sendToBack, 
-    raiseWidget, 
+  const {
+    bringToFront,
+    sendToBack,
+    raiseWidget,
     lowerWidget,
     duplicateWidget,
     deleteWidget,
     alignWidgets
-  } = useDashboard();
+  } = useDashboardStore();
   
   const menuRef = useRef<HTMLDivElement>(null);
   

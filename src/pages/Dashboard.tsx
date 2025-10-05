@@ -12,7 +12,7 @@ interface DashboardProps {
   className?: string;
 }
 
-export const Dashboard = ({ className, ...props }: DashboardProps) => {
+const Dashboard = ({ className, ...props }: DashboardProps) => {
   const { selectedWidgetId } = useDashboardStore();
   
   const [showInspector, setShowInspector] = useState(() => {
@@ -145,3 +145,5 @@ export const Dashboard = ({ className, ...props }: DashboardProps) => {
     </div>
   );
 };
+
+export default Dashboard;

@@ -1,518 +1,532 @@
-import { create } from 'zustand';
+import { create, type StateCreator } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { z } from 'zod';
-import type { WidgetKind, WidgetConfig } from '@/widgets/registry';
+import {
+  widgetRegistry,
+  type WidgetConfig,
+  type WidgetKind,
+} from '@/widgets/registry';
 
-// Layout and positioning types
-export interface LayoutItem {
+export interface WidgetInstance {
   id: string;
   kind: WidgetKind;
-  config: WidgetConfig;
+  title: string;
   x: number;
   y: number;
   width: number;
   height: number;
-  z: number;
-  selected: boolean;
-  locked: boolean;
+  zIndex: number;
+  overlayVisible?: boolean;
+  frame?: { x: number; y: number; w: number; h: number };
+  config: WidgetConfig;
 }
 
-export interface DashboardState {
-  // Core state
-  widgets: LayoutItem[];
-  selectedIds: string[];
-  clipboard: LayoutItem[];
-  isDragging: boolean;
-  isResizing: boolean;
-  
-  // UI state
-  inspectorOpen: boolean;
-  paletteOpen: boolean;
-  highContrast: boolean;
-  safeMode: boolean;
+export interface DashboardLayout {
+  id: string;
+  name: string;
+  widgets: string[];
+}
+
+export interface ToastItem {
+  id: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  duration: number;
+}
+
+export interface PopupState {
+  title?: string;
+  message: string;
+  actions?: { id: string; label: string }[];
+}
+
+export interface DashboardConfig {
+  autoRefresh: boolean;
+  refreshInterval: number;
   showGrid: boolean;
-  showGuides: boolean;
-  
-  // Motion preferences
-  motionPreset: 'dashboard' | 'overlay';
-  parallaxEnabled: boolean;
-  
-  // Actions
-  addWidget: (kind: WidgetKind, position?: { x: number; y: number }) => void;
-  removeWidget: (id: string) => void;
-  removeSelectedWidgets: () => void;
-  updateWidget: (id: string, updates: Partial<LayoutItem>) => void;
-  updateWidgetConfig: (id: string, config: WidgetConfig) => void;
-  
-  // Selection
-  selectWidget: (id: string, extend?: boolean) => void;
-  selectMultiple: (ids: string[]) => void;
-  clearSelection: () => void;
-  selectAll: () => void;
-  
-  // Layout operations
-  moveWidget: (id: string, x: number, y: number) => void;
-  resizeWidget: (id: string, width: number, height: number) => void;
-  nudgeWidgets: (ids: string[], dx: number, dy: number) => void;
-  
-  // Z-order
+  gridSize: number;
+  enableAnimations: boolean;
+  animationSpeed: number;
+  enableParallax: boolean;
+  defaultChartHeight: number;
+  showDataPoints: boolean;
+  lineWidth: number;
+}
+
+export interface DashboardSlice {
+  widgets: Record<string, WidgetInstance>;
+  dashboards: Record<string, DashboardLayout>;
+  layouts: string[];
+  activeDashboardId: string;
+  selectedWidgetId: string | null;
+  globalData: Record<string, any[]>;
+  toasts: ToastItem[];
+  popup: PopupState | null;
+  safeMode: boolean;
+  highContrast: boolean;
+  screenReaderMode: boolean;
+  config: DashboardConfig;
+  addWidget: (dashboardId: string, kind: WidgetKind) => void;
+  updateWidget: (id: string, patch: Partial<WidgetInstance>) => void;
+  updateWidgetConfig: (id: string, config: Partial<WidgetConfig>) => void;
+  selectWidget: (id: string | null) => void;
+  getSelectedWidget: () => WidgetInstance | undefined;
+  getActiveDashboard: () => DashboardLayout | undefined;
+  addWidgetToActive: (kind: WidgetKind) => void;
+  nudgeWidget: (id: string, dx: number, dy: number) => void;
+  resizeWidget: (id: string, dw: number, dh: number) => void;
+  duplicateWidget: (id: string) => void;
+  deleteWidget: (id: string) => void;
   bringToFront: (id: string) => void;
   sendToBack: (id: string) => void;
   raiseWidget: (id: string) => void;
   lowerWidget: (id: string) => void;
-  setZOrder: (id: string, z: number) => void;
-  
-  // Alignment & distribution
-  alignWidgets: (ids: string[], alignment: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => void;
+  alignWidgets: (ids: string[], alignment: 'left' | 'right' | 'top' | 'bottom' | 'center-h' | 'center-v') => void;
   distributeWidgets: (ids: string[], direction: 'horizontal' | 'vertical') => void;
-  
-  // Clipboard operations
-  copyWidgets: (ids: string[]) => void;
-  pasteWidgets: (position?: { x: number; y: number }) => void;
-  duplicateWidgets: (ids: string[]) => void;
-  
-  // Import/Export
-  exportDashboard: () => DashboardBundle;
-  importDashboard: (bundle: DashboardBundle) => void;
-  resetDashboard: () => void;
-  
-  // UI toggles
-  toggleInspector: () => void;
-  togglePalette: () => void;
-  toggleHighContrast: () => void;
+  switchLayout: (id: string) => void;
+  exportDashboard: (id?: string) => DashboardExport | null;
+  importDashboard: (bundle: DashboardExport) => void;
+  setGlobalData: (key: string, rows: any[]) => void;
+  triggerToast: (toast: Partial<ToastItem> & { message: string }) => void;
+  dismissToast: (id: string) => void;
+  triggerPopup: (popup: PopupState) => void;
+  dismissPopup: () => void;
   toggleSafeMode: () => void;
-  toggleGrid: () => void;
-  toggleGuides: () => void;
-  
-  // Motion controls
-  setMotionPreset: (preset: 'dashboard' | 'overlay') => void;
-  toggleParallax: () => void;
-  
-  // Drag & resize state
-  setDragging: (dragging: boolean) => void;
-  setResizing: (resizing: boolean) => void;
+  toggleHighContrast: () => void;
+  toggleScreenReaderMode: () => void;
+  updateConfig: (patch: Partial<DashboardConfig>) => void;
+  resetConfig: () => void;
 }
 
-// Dashboard bundle schema for import/export
-export const DashboardBundleSchema = z.object({
-  version: z.string(),
-  timestamp: z.string(),
-  widgets: z.array(z.object({
-    id: z.string(),
-    kind: z.string(),
-    config: z.record(z.unknown()),
-    x: z.number(),
-    y: z.number(),
-    width: z.number(),
-    height: z.number(),
-    z: z.number(),
-    selected: z.boolean().default(false),
-    locked: z.boolean().default(false),
-  })),
-  settings: z.object({
-    motionPreset: z.enum(['dashboard', 'overlay']).default('dashboard'),
-    parallaxEnabled: z.boolean().default(true),
-    highContrast: z.boolean().default(false),
-    safeMode: z.boolean().default(false),
-  }).optional(),
+export interface AppearanceSlice {
+  accentH: number;
+  accentS: number;
+  accentL: number;
+  setAccent: (h: number, s: number, l: number) => void;
+}
+
+export type DashboardStore = DashboardSlice & AppearanceSlice;
+
+export interface DashboardExport {
+  id: string;
+  name: string;
+  widgets: WidgetInstance[];
+}
+
+const DEFAULT_CONFIG: DashboardConfig = {
+  autoRefresh: false,
+  refreshInterval: 10000,
+  showGrid: true,
+  gridSize: 12,
+  enableAnimations: true,
+  animationSpeed: 1,
+  enableParallax: false,
+  defaultChartHeight: 320,
+  showDataPoints: true,
+  lineWidth: 2,
+};
+
+const createId = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+
+const createWidgetInstance = (kind: WidgetKind, overrides: Partial<WidgetInstance> = {}): WidgetInstance => {
+  const registryEntry = widgetRegistry[kind];
+  const id = overrides.id ?? createId('widget');
+  return {
+    id,
+    kind,
+    title: registryEntry?.defaults?.title ?? registryEntry?.name ?? kind,
+    x: 0,
+    y: 0,
+    width: 4,
+    height: 3,
+    zIndex: 1,
+    config: { ...(registryEntry?.defaults ?? {}) },
+    ...overrides,
+  } as WidgetInstance;
+};
+
+const initialWidgetA = createWidgetInstance('card', {
+  id: 'widget-overview',
+  title: 'Stream Overview',
+  x: 0,
+  y: 0,
+  width: 4,
+  height: 3,
 });
 
-export type DashboardBundle = z.infer<typeof DashboardBundleSchema>;
+const initialWidgetB = createWidgetInstance('kpi', {
+  id: 'widget-kpi',
+  title: 'Live Viewers',
+  x: 4,
+  y: 0,
+  width: 3,
+  height: 3,
+  config: {
+    ...createWidgetInstance('kpi').config,
+    value: '128',
+    trend: 'up',
+  },
+});
 
-// Utility functions
-function generateId(): string {
-  return `widget_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
+const initialWidgetOverlay = createWidgetInstance('lower-third', {
+  id: 'widget-lower-third',
+  title: 'Show Lower Third',
+  overlayVisible: true,
+  frame: { x: 40, y: 540, w: 960, h: 160 },
+  zIndex: 5,
+});
 
-function findAvailablePosition(existingWidgets: LayoutItem[]): { x: number; y: number } {
-  const gridSize = 20;
-  const defaultWidth = 200;
-  const defaultHeight = 120;
-  
-  // Try to find a position that doesn't overlap
-  for (let y = gridSize; y < 800; y += defaultHeight + gridSize) {
-    for (let x = gridSize; x < 1200; x += defaultWidth + gridSize) {
-      const overlaps = existingWidgets.some(widget =>
-        x < widget.x + widget.width &&
-        x + defaultWidth > widget.x &&
-        y < widget.y + widget.height &&
-        y + defaultHeight > widget.y
-      );
-      
-      if (!overlaps) {
-        return { x, y };
+const initialDashboard: DashboardLayout = {
+  id: 'default',
+  name: 'Default Program',
+  widgets: [initialWidgetA.id, initialWidgetB.id, initialWidgetOverlay.id],
+};
+
+const initialWidgets: Record<string, WidgetInstance> = {
+  [initialWidgetA.id]: initialWidgetA,
+  [initialWidgetB.id]: initialWidgetB,
+  [initialWidgetOverlay.id]: initialWidgetOverlay,
+};
+
+const createAppearanceSlice: StateCreator<DashboardStore, [['zustand/subscribeWithSelector', never]], [], AppearanceSlice> = (set) => ({
+  accentH: 212,
+  accentS: 86,
+  accentL: 54,
+  setAccent: (h, s, l) => set({ accentH: h, accentS: s, accentL: l }),
+});
+
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
+const createDashboardSlice: StateCreator<DashboardStore, [['zustand/subscribeWithSelector', never]], [], DashboardSlice> = (set, get) => ({
+  widgets: initialWidgets,
+  dashboards: { [initialDashboard.id]: initialDashboard },
+  layouts: [initialDashboard.id],
+  activeDashboardId: initialDashboard.id,
+  selectedWidgetId: null,
+  globalData: {},
+  toasts: [],
+  popup: null,
+  safeMode: false,
+  highContrast: false,
+  screenReaderMode: false,
+  config: { ...DEFAULT_CONFIG },
+
+  addWidget: (dashboardId, kind) => {
+    const dashboard = get().dashboards[dashboardId];
+    if (!dashboard) return;
+    const widget = createWidgetInstance(kind, {
+      x: dashboard.widgets.length % 4,
+      y: Math.floor(dashboard.widgets.length / 4),
+      zIndex: dashboard.widgets.length + 1,
+    });
+
+    set(state => ({
+      widgets: { ...state.widgets, [widget.id]: widget },
+      dashboards: {
+        ...state.dashboards,
+        [dashboardId]: {
+          ...dashboard,
+          widgets: [...dashboard.widgets, widget.id],
+        },
+      },
+      selectedWidgetId: widget.id,
+    }));
+  },
+
+  addWidgetToActive: (kind) => {
+    const active = get().activeDashboardId;
+    get().addWidget(active, kind);
+  },
+
+  updateWidget: (id, patch) => {
+    const widget = get().widgets[id];
+    if (!widget) return;
+    set(state => ({
+      widgets: {
+        ...state.widgets,
+        [id]: { ...widget, ...patch, config: patch.config ? { ...widget.config, ...patch.config } : widget.config },
+      },
+    }));
+  },
+
+  updateWidgetConfig: (id, configPatch) => {
+    const widget = get().widgets[id];
+    if (!widget) return;
+    set(state => ({
+      widgets: {
+        ...state.widgets,
+        [id]: { ...widget, config: { ...widget.config, ...configPatch } },
+      },
+    }));
+  },
+
+  selectWidget: (id) => set({ selectedWidgetId: id }),
+
+  getSelectedWidget: () => {
+    const { selectedWidgetId, widgets } = get();
+    return selectedWidgetId ? widgets[selectedWidgetId] : undefined;
+  },
+
+  getActiveDashboard: () => {
+    const { dashboards, activeDashboardId } = get();
+    return dashboards[activeDashboardId];
+  },
+
+  nudgeWidget: (id, dx, dy) => {
+    const widget = get().widgets[id];
+    if (!widget) return;
+    get().updateWidget(id, { x: widget.x + dx, y: widget.y + dy });
+  },
+
+  resizeWidget: (id, dw, dh) => {
+    const widget = get().widgets[id];
+    if (!widget) return;
+    get().updateWidget(id, {
+      width: clamp(widget.width + dw, 1, 12),
+      height: clamp(widget.height + dh, 1, 12),
+    });
+  },
+
+  duplicateWidget: (id) => {
+    const widget = get().widgets[id];
+    const dashboard = get().getActiveDashboard();
+    if (!widget || !dashboard) return;
+    const clone = createWidgetInstance(widget.kind, {
+      ...widget,
+      id: createId('widget'),
+      title: `${widget.title} Copy`,
+      x: widget.x + 1,
+      y: widget.y + 1,
+      zIndex: widget.zIndex + 1,
+      config: { ...widget.config },
+    });
+
+    set(state => ({
+      widgets: { ...state.widgets, [clone.id]: clone },
+      dashboards: {
+        ...state.dashboards,
+        [dashboard.id]: {
+          ...dashboard,
+          widgets: [...dashboard.widgets, clone.id],
+        },
+      },
+      selectedWidgetId: clone.id,
+    }));
+  },
+
+  deleteWidget: (id) => {
+    const { dashboards, widgets, activeDashboardId, safeMode } = get();
+    if (!widgets[id]) return;
+
+    if (safeMode && typeof window !== 'undefined') {
+      const confirmDelete = window.confirm('Remove widget from dashboard?');
+      if (!confirmDelete) return;
+    }
+
+    const { [id]: _, ...rest } = widgets;
+    const dashboard = dashboards[activeDashboardId];
+    if (!dashboard) return;
+
+    set(state => ({
+      widgets: rest,
+      dashboards: {
+        ...state.dashboards,
+        [dashboard.id]: {
+          ...dashboard,
+          widgets: dashboard.widgets.filter(wid => wid !== id),
+        },
+      },
+      selectedWidgetId: state.selectedWidgetId === id ? null : state.selectedWidgetId,
+    }));
+  },
+
+  bringToFront: (id) => {
+    const widgets = get().widgets;
+    const widget = widgets[id];
+    if (!widget) return;
+    const max = Math.max(...Object.values(widgets).map(w => w.zIndex));
+    get().updateWidget(id, { zIndex: max + 1 });
+  },
+
+  sendToBack: (id) => {
+    const widgets = get().widgets;
+    const widget = widgets[id];
+    if (!widget) return;
+    const min = Math.min(...Object.values(widgets).map(w => w.zIndex));
+    get().updateWidget(id, { zIndex: min - 1 });
+  },
+
+  raiseWidget: (id) => {
+    const widgets = Object.values(get().widgets);
+    const current = widgets.find(w => w.id === id);
+    if (!current) return;
+    const higher = widgets.filter(w => w.zIndex > current.zIndex).sort((a, b) => a.zIndex - b.zIndex);
+    if (higher.length === 0) return;
+    get().updateWidget(id, { zIndex: higher[0].zIndex + 1 });
+  },
+
+  lowerWidget: (id) => {
+    const widgets = Object.values(get().widgets);
+    const current = widgets.find(w => w.id === id);
+    if (!current) return;
+    const lower = widgets.filter(w => w.zIndex < current.zIndex).sort((a, b) => b.zIndex - a.zIndex);
+    if (lower.length === 0) return;
+    get().updateWidget(id, { zIndex: lower[0].zIndex - 1 });
+  },
+
+  alignWidgets: (ids, alignment) => {
+    const widgets = ids.map(id => get().widgets[id]).filter(Boolean) as WidgetInstance[];
+    if (widgets.length === 0) return;
+
+    switch (alignment) {
+      case 'left': {
+        const minX = Math.min(...widgets.map(w => w.x));
+        widgets.forEach(w => get().updateWidget(w.id, { x: minX }));
+        break;
+      }
+      case 'right': {
+        const maxRight = Math.max(...widgets.map(w => w.x + w.width));
+        widgets.forEach(w => get().updateWidget(w.id, { x: maxRight - w.width }));
+        break;
+      }
+      case 'top': {
+        const minY = Math.min(...widgets.map(w => w.y));
+        widgets.forEach(w => get().updateWidget(w.id, { y: minY }));
+        break;
+      }
+      case 'bottom': {
+        const maxBottom = Math.max(...widgets.map(w => w.y + w.height));
+        widgets.forEach(w => get().updateWidget(w.id, { y: maxBottom - w.height }));
+        break;
+      }
+      case 'center-h': {
+        const center = widgets.reduce((acc, w) => acc + w.x + w.width / 2, 0) / widgets.length;
+        widgets.forEach(w => get().updateWidget(w.id, { x: center - w.width / 2 }));
+        break;
+      }
+      case 'center-v': {
+        const center = widgets.reduce((acc, w) => acc + w.y + w.height / 2, 0) / widgets.length;
+        widgets.forEach(w => get().updateWidget(w.id, { y: center - w.height / 2 }));
+        break;
       }
     }
-  }
-  
-  // Fallback to stacked position
-  return { x: 20, y: 20 + existingWidgets.length * 30 };
-}
+  },
 
-function getMaxZ(widgets: LayoutItem[]): number {
-  return Math.max(0, ...widgets.map(w => w.z));
-}
+  distributeWidgets: (ids, direction) => {
+    const widgets = ids.map(id => get().widgets[id]).filter(Boolean) as WidgetInstance[];
+    if (widgets.length < 3) return;
 
-function getMinZ(widgets: LayoutItem[]): number {
-  return Math.min(0, ...widgets.map(w => w.z));
-}
+    if (direction === 'horizontal') {
+      const sorted = [...widgets].sort((a, b) => a.x - b.x);
+      const first = sorted[0];
+      const last = sorted[sorted.length - 1];
+      const space = last.x - first.x;
+      const gaps = space / (sorted.length - 1);
+      sorted.forEach((widget, index) => {
+        get().updateWidget(widget.id, { x: first.x + gaps * index });
+      });
+    } else {
+      const sorted = [...widgets].sort((a, b) => a.y - b.y);
+      const first = sorted[0];
+      const last = sorted[sorted.length - 1];
+      const space = last.y - first.y;
+      const gaps = space / (sorted.length - 1);
+      sorted.forEach((widget, index) => {
+        get().updateWidget(widget.id, { y: first.y + gaps * index });
+      });
+    }
+  },
 
-// Create the dashboard store
-export const useDashboard = create<DashboardState>()(
-  subscribeWithSelector((set, get) => ({
-    // Initial state
-    widgets: [],
-    selectedIds: [],
-    clipboard: [],
-    isDragging: false,
-    isResizing: false,
-    
-    inspectorOpen: false,
-    paletteOpen: false,
-    highContrast: false,
-    safeMode: false,
-    showGrid: true,
-    showGuides: true,
-    
-    motionPreset: 'dashboard',
-    parallaxEnabled: true,
-    
-    // Core widget operations
-    addWidget: (kind, position) => {
-      const { widgets } = get();
-      const pos = position || findAvailablePosition(widgets);
-      const maxZ = getMaxZ(widgets);
-      
-      const newWidget: LayoutItem = {
-        id: generateId(),
-        kind,
-        config: { id: generateId(), title: `New ${kind}` } as WidgetConfig,
-        x: pos.x,
-        y: pos.y,
-        width: 200,
-        height: 120,
-        z: maxZ + 1,
-        selected: false,
-        locked: false,
-      };
-      
-      set(state => ({
-        widgets: [...state.widgets, newWidget],
-        selectedIds: [newWidget.id], // Auto-select new widget
-      }));
-    },
-    
-    removeWidget: (id) => {
-      set(state => ({
-        widgets: state.widgets.filter(w => w.id !== id),
-        selectedIds: state.selectedIds.filter(sid => sid !== id),
-      }));
-    },
-    
-    removeSelectedWidgets: () => {
-      const { selectedIds } = get();
-      set(state => ({
-        widgets: state.widgets.filter(w => !selectedIds.includes(w.id)),
-        selectedIds: [],
-      }));
-    },
-    
-    updateWidget: (id, updates) => {
-      set(state => ({
-        widgets: state.widgets.map(w =>
-          w.id === id ? { ...w, ...updates } : w
-        ),
-      }));
-    },
-    
-    updateWidgetConfig: (id, config) => {
-      set(state => ({
-        widgets: state.widgets.map(w =>
-          w.id === id ? { ...w, config } : w
-        ),
-      }));
-    },
-    
-    // Selection operations
-    selectWidget: (id, extend = false) => {
-      set(state => {
-        if (extend) {
-          const isSelected = state.selectedIds.includes(id);
-          return {
-            selectedIds: isSelected
-              ? state.selectedIds.filter(sid => sid !== id)
-              : [...state.selectedIds, id],
-          };
-        } else {
-          return { selectedIds: [id] };
-        }
-      });
-    },
-    
-    selectMultiple: (ids) => {
-      set({ selectedIds: ids });
-    },
-    
-    clearSelection: () => {
-      set({ selectedIds: [] });
-    },
-    
-    selectAll: () => {
-      const { widgets } = get();
-      set({ selectedIds: widgets.map(w => w.id) });
-    },
-    
-    // Layout operations
-    moveWidget: (id, x, y) => {
-      get().updateWidget(id, { x, y });
-    },
-    
-    resizeWidget: (id, width, height) => {
-      get().updateWidget(id, { width, height });
-    },
-    
-    nudgeWidgets: (ids, dx, dy) => {
-      set(state => ({
-        widgets: state.widgets.map(w =>
-          ids.includes(w.id) ? { ...w, x: w.x + dx, y: w.y + dy } : w
-        ),
-      }));
-    },
-    
-    // Z-order operations
-    bringToFront: (id) => {
-      const { widgets } = get();
-      const maxZ = getMaxZ(widgets);
-      get().setZOrder(id, maxZ + 1);
-    },
-    
-    sendToBack: (id) => {
-      const { widgets } = get();
-      const minZ = getMinZ(widgets);
-      get().setZOrder(id, minZ - 1);
-    },
-    
-    raiseWidget: (id) => {
-      const { widgets } = get();
-      const widget = widgets.find(w => w.id === id);
-      if (!widget) return;
-      
-      const higherWidgets = widgets.filter(w => w.z > widget.z);
-      if (higherWidgets.length > 0) {
-        const nextZ = Math.min(...higherWidgets.map(w => w.z));
-        get().setZOrder(id, nextZ + 1);
-      }
-    },
-    
-    lowerWidget: (id) => {
-      const { widgets } = get();
-      const widget = widgets.find(w => w.id === id);
-      if (!widget) return;
-      
-      const lowerWidgets = widgets.filter(w => w.z < widget.z);
-      if (lowerWidgets.length > 0) {
-        const nextZ = Math.max(...lowerWidgets.map(w => w.z));
-        get().setZOrder(id, nextZ - 1);
-      }
-    },
-    
-    setZOrder: (id, z) => {
-      get().updateWidget(id, { z });
-    },
-    
-    // Alignment operations
-    alignWidgets: (ids, alignment) => {
-      const { widgets } = get();
-      const selectedWidgets = widgets.filter(w => ids.includes(w.id));
-      
-      if (selectedWidgets.length < 2) return;
-      
-      let anchor: number;
-      
-      switch (alignment) {
-        case 'left':
-          anchor = Math.min(...selectedWidgets.map(w => w.x));
-          selectedWidgets.forEach(w => get().moveWidget(w.id, anchor, w.y));
-          break;
-        case 'right':
-          anchor = Math.max(...selectedWidgets.map(w => w.x + w.width));
-          selectedWidgets.forEach(w => get().moveWidget(w.id, anchor - w.width, w.y));
-          break;
-        case 'center':
-          anchor = selectedWidgets.reduce((sum, w) => sum + w.x + w.width / 2, 0) / selectedWidgets.length;
-          selectedWidgets.forEach(w => get().moveWidget(w.id, anchor - w.width / 2, w.y));
-          break;
-        case 'top':
-          anchor = Math.min(...selectedWidgets.map(w => w.y));
-          selectedWidgets.forEach(w => get().moveWidget(w.id, w.x, anchor));
-          break;
-        case 'bottom':
-          anchor = Math.max(...selectedWidgets.map(w => w.y + w.height));
-          selectedWidgets.forEach(w => get().moveWidget(w.id, w.x, anchor - w.height));
-          break;
-        case 'middle':
-          anchor = selectedWidgets.reduce((sum, w) => sum + w.y + w.height / 2, 0) / selectedWidgets.length;
-          selectedWidgets.forEach(w => get().moveWidget(w.id, w.x, anchor - w.height / 2));
-          break;
-      }
-    },
-    
-    distributeWidgets: (ids, direction) => {
-      const { widgets } = get();
-      const selectedWidgets = widgets.filter(w => ids.includes(w.id))
-        .sort((a, b) => direction === 'horizontal' ? a.x - b.x : a.y - b.y);
-      
-      if (selectedWidgets.length < 3) return;
-      
-      const first = selectedWidgets[0];
-      const last = selectedWidgets[selectedWidgets.length - 1];
-      
-      if (direction === 'horizontal') {
-        const totalSpace = (last.x + last.width) - first.x;
-        const usedSpace = selectedWidgets.reduce((sum, w) => sum + w.width, 0);
-        const gap = (totalSpace - usedSpace) / (selectedWidgets.length - 1);
-        
-        let currentX = first.x + first.width + gap;
-        for (let i = 1; i < selectedWidgets.length - 1; i++) {
-          get().moveWidget(selectedWidgets[i].id, currentX, selectedWidgets[i].y);
-          currentX += selectedWidgets[i].width + gap;
-        }
-      } else {
-        const totalSpace = (last.y + last.height) - first.y;
-        const usedSpace = selectedWidgets.reduce((sum, w) => sum + w.height, 0);
-        const gap = (totalSpace - usedSpace) / (selectedWidgets.length - 1);
-        
-        let currentY = first.y + first.height + gap;
-        for (let i = 1; i < selectedWidgets.length - 1; i++) {
-          get().moveWidget(selectedWidgets[i].id, selectedWidgets[i].x, currentY);
-          currentY += selectedWidgets[i].height + gap;
-        }
-      }
-    },
-    
-    // Clipboard operations
-    copyWidgets: (ids) => {
-      const { widgets } = get();
-      const selectedWidgets = widgets.filter(w => ids.includes(w.id));
-      set({ clipboard: selectedWidgets });
-    },
-    
-    pasteWidgets: (position) => {
-      const { clipboard } = get();
-      if (clipboard.length === 0) return;
-      
-      const offset = position || { x: 20, y: 20 };
-      clipboard.forEach((widget, index) => {
-        get().addWidget(widget.kind, {
-          x: offset.x + index * 20,
-          y: offset.y + index * 20,
-        });
-      });
-    },
-    
-    duplicateWidgets: (ids) => {
-      get().copyWidgets(ids);
-      get().pasteWidgets({ x: 20, y: 20 });
-    },
-    
-    // Import/Export
-    exportDashboard: () => {
-      const { widgets, motionPreset, parallaxEnabled, highContrast, safeMode } = get();
-      
-      return {
-        version: '1.0.0',
-        timestamp: new Date().toISOString(),
-        widgets: widgets.map(w => ({
-          id: w.id,
-          kind: w.kind as string,
-          config: w.config as Record<string, unknown>,
-          x: w.x,
-          y: w.y,
-          width: w.width,
-          height: w.height,
-          z: w.z,
-          selected: false, // Don't persist selection
-          locked: w.locked,
-        })),
-        settings: {
-          motionPreset,
-          parallaxEnabled,
-          highContrast,
-          safeMode,
-        },
-      };
-    },
-    
-    importDashboard: (bundle) => {
-      try {
-        const validated = DashboardBundleSchema.parse(bundle);
-        
-        const widgets: LayoutItem[] = validated.widgets.map(w => ({
-          id: w.id,
-          kind: w.kind as WidgetKind,
-          config: w.config as WidgetConfig,
-          x: w.x,
-          y: w.y,
-          width: w.width,
-          height: w.height,
-          z: w.z,
-          selected: false,
-          locked: w.locked,
-        }));
-        
-        set({
-          widgets,
-          selectedIds: [],
-          motionPreset: validated.settings?.motionPreset || 'dashboard',
-          parallaxEnabled: validated.settings?.parallaxEnabled ?? true,
-          highContrast: validated.settings?.highContrast ?? false,
-          safeMode: validated.settings?.safeMode ?? false,
-        });
-      } catch (error) {
-        console.error('Failed to import dashboard:', error);
-        throw new Error('Invalid dashboard bundle format');
-      }
-    },
-    
-    resetDashboard: () => {
-      set({
-        widgets: [],
-        selectedIds: [],
-        clipboard: [],
-        motionPreset: 'dashboard',
-        parallaxEnabled: true,
-        highContrast: false,
-        safeMode: false,
-      });
-    },
-    
-    // UI toggles
-    toggleInspector: () => set(state => ({ inspectorOpen: !state.inspectorOpen })),
-    togglePalette: () => set(state => ({ paletteOpen: !state.paletteOpen })),
-    toggleHighContrast: () => {
-      set(state => {
-        const newHC = !state.highContrast;
-        document.documentElement.classList.toggle('hc', newHC);
-        return { highContrast: newHC };
-      });
-    },
-    toggleSafeMode: () => set(state => ({ safeMode: !state.safeMode })),
-    toggleGrid: () => set(state => ({ showGrid: !state.showGrid })),
-    toggleGuides: () => set(state => ({ showGuides: !state.showGuides })),
-    
-    // Motion controls
-    setMotionPreset: (preset) => set({ motionPreset: preset }),
-    toggleParallax: () => set(state => ({ parallaxEnabled: !state.parallaxEnabled })),
-    
-    // Drag & resize state
-    setDragging: (dragging) => set({ isDragging: dragging }),
-    setResizing: (resizing) => set({ isResizing: resizing }),
+  switchLayout: (id) => {
+    if (!get().dashboards[id]) return;
+    set({ activeDashboardId: id, selectedWidgetId: null });
+  },
+
+  exportDashboard: (id) => {
+    const dashboard = get().dashboards[id ?? get().activeDashboardId];
+    if (!dashboard) return null;
+    return {
+      id: dashboard.id,
+      name: dashboard.name,
+      widgets: dashboard.widgets.map(wid => ({ ...get().widgets[wid] })).filter(Boolean) as WidgetInstance[],
+    };
+  },
+
+  importDashboard: (bundle) => {
+    const { id, name, widgets } = bundle;
+    const widgetMap = widgets.reduce<Record<string, WidgetInstance>>((acc, widget) => {
+      acc[widget.id] = { ...widget };
+      return acc;
+    }, {});
+
+    set(state => ({
+      widgets: { ...state.widgets, ...widgetMap },
+      dashboards: {
+        ...state.dashboards,
+        [id]: { id, name, widgets: widgets.map(w => w.id) },
+      },
+      layouts: state.layouts.includes(id) ? state.layouts : [...state.layouts, id],
+      activeDashboardId: id,
+      selectedWidgetId: widgets[0]?.id ?? null,
+    }));
+  },
+
+  setGlobalData: (key, rows) => {
+    set(state => ({ globalData: { ...state.globalData, [key]: rows } }));
+  },
+
+  triggerToast: ({ message, type = 'info', duration = 3000 }) => {
+    const id = createId('toast');
+    const toast: ToastItem = { id, message, type, duration };
+    set(state => ({ toasts: [...state.toasts, toast] }));
+
+    if (typeof window !== 'undefined') {
+      window.setTimeout(() => get().dismissToast(id), duration);
+    }
+  },
+
+  dismissToast: (id) => {
+    set(state => ({ toasts: state.toasts.filter(toast => toast.id !== id) }));
+  },
+
+  triggerPopup: (popup) => set({ popup }),
+
+  dismissPopup: () => set({ popup: null }),
+
+  toggleSafeMode: () => set(state => {
+    const next = !state.safeMode;
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('safe-mode', next);
+    }
+    return { safeMode: next };
+  }),
+
+  toggleHighContrast: () => set(state => {
+    const next = !state.highContrast;
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('hc', next);
+    }
+    return { highContrast: next };
+  }),
+
+  toggleScreenReaderMode: () => set(state => {
+    const next = !state.screenReaderMode;
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('sr', next);
+      document.documentElement.setAttribute('data-sr', String(next));
+    }
+    return { screenReaderMode: next, safeMode: next ? true : state.safeMode };
+  }),
+
+  updateConfig: (patch) => set(state => ({ config: { ...state.config, ...patch } })),
+
+  resetConfig: () => set({ config: { ...DEFAULT_CONFIG } }),
+});
+
+export const useDashboardStore = create<DashboardStore>()(
+  subscribeWithSelector((...args) => ({
+    ...createAppearanceSlice(...args),
+    ...createDashboardSlice(...args),
   }))
 );
 
-// Global helper for development/testing
-if (typeof window !== 'undefined') {
-  (window as any).__CURRENT_BUNDLE__ = () => useDashboard.getState().exportDashboard();
-}
-
-export default useDashboard;
+export default useDashboardStore;
