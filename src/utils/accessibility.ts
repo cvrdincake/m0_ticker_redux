@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 
 /**
- * useFocusTrap
- *
  * Trap keyboard focus within a container when active, and restore focus on cleanup.
  */
 export function useFocusTrap(containerRef: React.RefObject<HTMLElement>, active: boolean) {
@@ -51,8 +49,6 @@ export function useFocusTrap(containerRef: React.RefObject<HTMLElement>, active:
 }
 
 /**
- * useAriaLive
- *
  * Return props for a polite aria-live region to announce dynamic messages.
  */
 export function useAriaLive(message?: string) {
