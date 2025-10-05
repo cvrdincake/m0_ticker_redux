@@ -317,4 +317,60 @@ export function validateWidgetConfig<T extends WidgetConfig>(
   } else {
     return { success: false, error: result.error };
   }
+// … existing imports and schemas …
+export const BrbScreenConfigSchema = BaseWidgetConfigSchema.extend({
+  message: z.string().default('Be Right Back'),
+  subMessage: z.string().default('We will return shortly'),
+  /** Duration of the countdown in seconds. If omitted, no countdown is shown. */
+  countdown: z.number().optional(),
+  /** Background image URL for the BRB screen. */
+  image: z.string().optional(),
+  motionPreset: z.enum(['modal', 'drawer', 'card']).default('modal'),
+  density: z.enum(['comfortable', 'compact', 'relaxed']).default('comfortable'),
+});
+
+// … configuration types …
+export type BrbScreenConfig = z.infer<typeof BrbScreenConfigSchema>;
+
+// WidgetConfig union extended
+export type WidgetConfig = 
+  | CardConfig 
+  | ButtonConfig 
+  | InputConfig 
+  | TableConfig 
+  | KPIConfig 
+  | AnimatedListConfig 
+  | ChartConfig 
+  | ToastConfig 
+  | PopupAlertConfig 
+  | LowerThirdConfig
+  | BrbScreenConfig;
+
+// WidgetKind union extended
+export type WidgetKind = 
+  | 'card' 
+  | 'button' 
+  | 'input' 
+  | 'table' 
+  | 'kpi' 
+  | 'animated-list' 
+  | 'chart' 
+  | 'toast' 
+  | 'popup-alert' 
+  | 'lower-third'
+  | 'brb-screen';
+
+// … widgetRegistry additions …
+'brb-screen': {
+    kind: 'brb-screen',
+    name: 'BRB Screen',
+    description: 'Full screen overlay indicating the stream will return shortly',
+    category: 'overlay',
+    schema: BrbScreenConfigSchema as z.ZodType<BrbScreenConfig>,
+    defaults: BrbScreenConfigSchema.parse({}),
+    component: lazy(() => import('@/widgets/BrbScreen')),
+    role: 'modal',
+    parallaxMax: 0,
+    overlaySupported: true,
+  },
 }
